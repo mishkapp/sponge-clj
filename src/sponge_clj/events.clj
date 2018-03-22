@@ -1,7 +1,6 @@
 (ns sponge-clj.events
   (:require [sponge-clj.sponge :as sp]
             [sponge-clj.cause :as c])
-  (:use [sponge-clj.world])
   (:import (org.spongepowered.api.event.entity MoveEntityEvent TargetEntityEvent DamageEntityEvent)
            (org.spongepowered.api.event Event EventListener Order)
            (org.spongepowered.api Sponge)
@@ -70,6 +69,7 @@
   )
 
 (defn register-listener
+  "Do not use this function directly, your event will be registered one more time on each scripts reload!"
   ([event-type fn] (register-listener event-type fn Order/DEFAULT))
   ([event-type fn order] (register-listener event-type fn order false))
   ([event-type fn order before-modifications]
@@ -79,6 +79,8 @@
      (-> (Sponge/getEventManager)
          (.registerListener (sp/get-plugin'), ^Class event-type, order, before-modifications, proxy)))))
 
-(comment
+(defn unregister-all
+  "Deregisters all listeners from this plugin"
+  []
   (-> (Sponge/getEventManager)
       (.unregisterPluginListeners (sp/get-plugin'))))
