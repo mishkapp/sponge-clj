@@ -67,11 +67,11 @@
          (some? equipment)]}
   (if (instance? ArmorEquipable entity)
     (let [^ArmorEquipable ae-entity entity]
-      (do (.setHelmet ae-entity (:head equipment))
-          (.setChestplate ae-entity (:chestplate equipment))
-          (.setLeggings ae-entity (:leggings equipment))
-          (.setBoots ae-entity (:boots equipment))
-          (.setItemInHand ae-entity (HandTypes/MAIN_HAND) (:main-hand equipment))
-          (.setItemInHand ae-entity (HandTypes/OFF_HAND) (:off-hand equipment))
+      (do (.setHelmet ae-entity (eval (:head equipment)))
+          (.setChestplate ae-entity (eval (:chestplate equipment)))
+          (.setLeggings ae-entity (eval (:leggings equipment)))
+          (.setBoots ae-entity (eval (:boots equipment)))
+          (.setItemInHand ae-entity (HandTypes/MAIN_HAND) (eval (:main-hand equipment)))
+          (.setItemInHand ae-entity (HandTypes/OFF_HAND) (eval (:off-hand equipment)))
           ae-entity)
       entity)))

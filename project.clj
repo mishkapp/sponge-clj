@@ -9,7 +9,7 @@
                  [org.clojure/tools.trace "0.7.9"]
                  [org.clojure/tools.nrepl "0.2.3"]]
   :profiles {
-             :dev {:dependencies [[org.clojure/clojure "1.8.0"]]}
+             :dev      {:dependencies [[org.clojure/clojure "1.8.0"]]}
              :provided {:dependencies [[org.spongepowered/spongeapi "7.0.0"]]}
-             :uberjar {:aot :all}
+             :uberjar  {:aot [sponge-clj.core]}
              })

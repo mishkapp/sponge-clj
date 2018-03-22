@@ -56,10 +56,10 @@
              true (.createEntity mob-type)
              true (mark-lambda-mob mob)
              true (e/set-persistent true)
-             (contains? mob :display-name) (e/set-display-name (:display-name mob))
-             (contains? mob :health) (e/set-max-health (:health mob))
-             (contains? mob :speed) (e/set-speed (:speed mob))
-             (contains? mob :damage) (e/set-damage (:damage mob))
+             (contains? mob :display-name) (e/set-display-name (eval (:display-name mob)))
+             (contains? mob :health) (e/set-max-health (eval (:health mob)))
+             (contains? mob :speed) (e/set-speed (eval (:speed mob)))
+             (contains? mob :damage) (e/set-damage (eval (:damage mob)))
              (contains? mob :equipment) (e/set-equipment (:equipment mob))
              true (e/spawn world)
              ))))
@@ -85,8 +85,9 @@
             loc   (e/get-loc entity)
             items (get mob :drop)]
         (do
-          (doseq [i items]
-              (i/spawn-item loc i))
+          (doseq [it items]
+            (when-let [item (eval it)]
+              (i/spawn-item loc item)))
           (swap! recently-dead dissoc id)
           (.setCancelled (:event event) true)
           )))

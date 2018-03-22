@@ -58,7 +58,8 @@
 
 (defn add-item-stack
   [^Item item ^ItemStack is]
-  (do (.offer item Keys/REPRESENTED_ITEM (.createSnapshot is))
+  (do (println is)
+      (.offer item Keys/REPRESENTED_ITEM (.createSnapshot is))
       item))
 
 (defn spawn-item

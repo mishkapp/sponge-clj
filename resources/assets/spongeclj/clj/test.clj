@@ -56,7 +56,7 @@
   :id :skeleton-king
   :entity-type "minecraft:skeleton"
   :display-name "&6&lSkeleton king"
-  :health 5
+  :health `(rand-int 20)
   :damage 4                                                 ;??
   :speed 0.2
   ;:armor            2
@@ -67,7 +67,8 @@
                      :magma      -1
                      }
   :drop [
-         '(item-stack "minecraft:diamond_block" 10)
+         `(item-stack "minecraft:diamond_block" (rand-int 10))
+         `(if (= 0 (rand-int 3)) (item-stack "minecraft:apple" 1) nil)
          (li/lambda-item-stack :skeleton-king-sword)
          ]
   :equipment {
