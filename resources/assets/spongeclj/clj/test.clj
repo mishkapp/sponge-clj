@@ -13,6 +13,7 @@
     [sponge-clj.lambda-mobs :as lm]
     [sponge-clj.sponge :as sp]
     [sponge-clj.events :as ev]
+    [sponge-clj.random :as rnd]
     )
   (:import (org.spongepowered.api.event.entity MoveEntityEvent)
            (org.spongepowered.api.entity.living.player Player)
@@ -42,21 +43,11 @@
 
   :action-fn sword-use)
 
-
-(comment
-  (def skeleton-king-drop-list
-    (dl [(= (rand-int 2) 0) [(item-stack "minecraft:diamond_block" (rand-int 11))]
-         (= (rand-int 2) 0) [(li/lambda-item-stack :skeleton-king-sword)]
-         ])))
-
-;(def testdl
-;  (dl [(number? 2) (item-stack "minecraft:sponge")]))
-
 (lm/def-mob
   :id :skeleton-king
   :entity-type "minecraft:skeleton"
   :display-name "&6&lSkeleton king"
-  :health `(rand-int 20)
+  :health `(range 16 22)
   :damage 4                                                 ;??
   :speed 0.2
   ;:armor            2
@@ -67,8 +58,8 @@
                      :magma      -1
                      }
   :drop [
-         `(item-stack "minecraft:diamond_block" (rand-int 10))
-         `(if (= 0 (rand-int 3)) (item-stack "minecraft:apple" 1) nil)
+         `(item-stack "minecraft:diamond_block" (rnd/range 5 10))
+         `(cond (rnd/chance 1/3) (item-stack "minecraft:apple" 1))
          (li/lambda-item-stack :skeleton-king-sword)
          ]
   :equipment {
