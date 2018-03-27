@@ -1,9 +1,9 @@
 (ns sponge-clj.random)
 
-(defn range
+(defn from-range
   "Returns random number in range, inclusive"
   [from to]
-  (+ (rand-int (+ 1 (- to from))) from))
+  (int (+ (rand-int (+ 1 (- to from))) from)))
 
 (defn chance
   "Return true if \"hits\" chance, chance is ratio"

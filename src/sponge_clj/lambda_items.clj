@@ -1,16 +1,17 @@
 (ns sponge-clj.lambda-items
   (:require [sponge-clj.events :as ev]
-            [sponge-clj.cause  :as c])
-  (:use [sponge-clj.items]
-        [sponge-clj.util])
+            [sponge-clj.cause  :as c]
+            [sponge-clj.enchantments :refer :all]
+            [sponge-clj.items :refer :all]
+            [sponge-clj.util :refer :all])
   (:import (org.spongepowered.api.item.inventory ItemStack)
            (org.spongepowered.api.entity.living.player Player)
            (org.spongepowered.api.data DataQuery)
-           (org.spongepowered.api.event.block InteractBlockEvent InteractBlockEvent$Secondary$MainHand)))
+           (org.spongepowered.api.event.block InteractBlockEvent$Secondary$MainHand)))
 
 (def ^:private items (atom {}))
 
-(defn register
+(defn- register
   [id item]
   (swap! items assoc id item))
 

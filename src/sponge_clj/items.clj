@@ -40,22 +40,6 @@
   (do (.offer is Keys/ITEM_LORE (map text/to-text lore))
       is))
 
-(defn add-enchantment
-  [^ItemStack is enchantment]
-  {:pre [(some? is)
-         (some? enchantment)]}
-  (let [enchantments (-> (.get is Keys/ITEM_ENCHANTMENTS)
-                         (.orElse []))]
-    (do (.offer is Keys/ITEM_ENCHANTMENTS (concat enchantments [enchantment]))
-        is)))
-
-(defn add-enchantments
-  [^ItemStack is enchantments]
-  {:pre [(some? is)
-         (some? enchantments)]}
-  (do (map (partial add-enchantment is) enchantments)
-      is))
-
 (defn add-item-stack
   [^Item item ^ItemStack is]
   (do (println is)

@@ -18,7 +18,7 @@
 
 (def ^:private recently-dead (atom {}))
 
-(defn register
+(defn- register
   [id mob]
   (swap! mobs assoc id mob))
 
@@ -86,6 +86,7 @@
             items (get mob :drop)]
         (do
           (doseq [it items]
+            (println it)
             (when-let [item (eval it)]
               (i/spawn-item loc item)))
           (swap! recently-dead dissoc id)

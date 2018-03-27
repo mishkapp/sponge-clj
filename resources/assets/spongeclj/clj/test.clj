@@ -4,16 +4,15 @@
     [sponge-clj.items]
     [sponge-clj.potion-effects]
     [sponge-clj.time]
-    [sponge-clj.enchantments]
     [sponge-clj.logger]
     [sponge-clj.triggers]
-    [sponge-clj.world])
-  (:require
-    [sponge-clj.lambda-items :as li]
-    [sponge-clj.lambda-mobs :as lm]
-    [sponge-clj.sponge :as sp]
-    [sponge-clj.events :as ev]
-    [sponge-clj.random :as rnd]
+    [sponge-clj.world]
+    [sponge-clj.lambda-items]
+    [sponge-clj.lambda-mobs]
+    [sponge-clj.sponge]
+    [sponge-clj.events]
+    [sponge-clj.random]
+    [sponge-clj.enchantments]
     )
   (:import (org.spongepowered.api.event.entity MoveEntityEvent)
            (org.spongepowered.api.entity.living.player Player)
@@ -26,7 +25,7 @@
     (send-message player "&bHa-ha-ha, it's cursed!")
     (add-effect player (effect "minecraft:slowness" 10 100))))
 
-(li/def-item
+(def-item
   :id :skeleton-king-sword
   :material "minecraft:diamond_sword"
   :display-name "&3Greatsword of the Skeleton King"
@@ -34,20 +33,20 @@
          "&6A powerful sword used by"
          "&6the King of Skeletons."
          ]
-  ;:enchantments [
-  ;               (enchantment "minecraft:sharpness" 2)
-  ;               (enchantment "minecraft:knockback" 2)
-  ;               (enchantment "minecraft:fire_aspect" 3)
-  ;               ]
+  :enchantments [
+                 (enchantment "minecraft:sharpness" 2)
+                 (enchantment "minecraft:knockback" 2)
+                 (enchantment "minecraft:fire_aspect" 3)
+                 ]
   :action-delay (seconds 1.5)
 
   :action-fn sword-use)
 
-(lm/def-mob
+(def-mob
   :id :skeleton-king
   :entity-type "minecraft:skeleton"
   :display-name "&6&lSkeleton king"
-  :health `(range 16 22)
+  :health 4
   :damage 4                                                 ;??
   :speed 0.2
   ;:armor            2
@@ -58,13 +57,13 @@
                      :magma      -1
                      }
   :drop [
-         `(item-stack "minecraft:diamond_block" (rnd/range 5 10))
-         `(cond (rnd/chance 1/3) (item-stack "minecraft:apple" 1))
-         (li/lambda-item-stack :skeleton-king-sword)
+         `(item-stack "minecraft:diamond_block" (from-range 5 10))
+         `(cond (chance 1/3) (item-stack "minecraft:apple" 1))
+         (lambda-item-stack :skeleton-king-sword)
          ]
   :equipment {
               :head      (item-stack "minecraft:gold_block")
-              :main-hand (li/lambda-item-stack :skeleton-king-sword)
+              :main-hand (lambda-item-stack :skeleton-king-sword)
               :off-hand  (item-stack "minecraft:shield")
               }
   )
@@ -98,33 +97,33 @@
   :action (fn [event]
             (let [entity (:entity event)]
               (send-message entity "Hue hue")))
-  :delay (seconds 1))
+  :delay (seconds 1)
 
-;(def-walk-trigger
-;   :predicate  (fn [{:keys                 [event player block]
-;                     {:keys [world x y z]} :location}]
-;                 (and (= x 100)
-;                      (= y 60)
-;                      (= z 100)))
-;   :action     (fn [{:keys                 [event player block]
-;                     {:keys [world x y z]} :location}]
-;                 (teleport-to player (location "world" 200 60 200)))
-;   :delay      (seconds 1)
-;   :permission "testtrigger.perm")
+  ;(def-walk-trigger
+  ;   :predicate  (fn [{:keys                 [event player block]
+  ;                     {:keys [world x y z]} :location}]
+  ;                 (and (= x 100)
+  ;                      (= y 60)
+  ;                      (= z 100)))
+  ;   :action     (fn [{:keys                 [event player block]
+  ;                     {:keys [world x y z]} :location}]
+  ;                 (teleport-to player (location "world" 200 60 200)))
+  ;   :delay      (seconds 1)
+  ;   :permission "testtrigger.perm")
 
-;(def-walktp-trigger
-;  {
-;   :from (location "world" 60 90 90)
-;   :to   (location "world" 200 60 200)
-;   })
+  ;(def-walktp-trigger
+  ;  {
+  ;   :from (location "world" 60 90 90)
+  ;   :to   (location "world" 200 60 200)
+  ;   })
 
-(comment
-  (sp/>>sponge #(lm/spawn-mob :skeleton-king {:world "world" :x 35 :y 64 :z 308}))
+  (comment
+    (sponge-clj.sponge/>>sponge #(spawn-mob :skeleton-king {:world "world" :x 35 :y 64 :z 308}))
 
-  (ev/register-listener ClientConnectionEvent$Join (fn [event]
-                                                     (let [^ClientConnectionEvent$Join eve (:event event)
-                                                           player (-> eve
-                                                                      (.getCause)
-                                                                      (.root))]
-                                                       (send-message player "Ho-hoho"))))
-  )
+    (register-listener ClientConnectionEvent$Join (fn [event]
+                                                    (let [^ClientConnectionEvent$Join eve (:event event)
+                                                          player                          (-> eve
+                                                                                              (.getCause)
+                                                                                              (.root))]
+                                                      (send-message player "Ho-hoho"))))
+    ))
