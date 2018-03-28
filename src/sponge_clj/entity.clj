@@ -61,6 +61,12 @@
       (.getLocation)
       (w/location)))
 
+(defn get-type
+  [^Entity entity]
+  (-> entity
+      (.getType)
+      (.getId)))
+
 (defn set-equipment
   [^Entity entity, equipment]
   {:pre [(some? entity)

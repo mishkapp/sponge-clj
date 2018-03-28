@@ -28,9 +28,7 @@
   [^ItemStack is display-name]
   {:pre [(some? is)
          (some? display-name)]}
-  (do (println (str is))
-      (println (str display-name))
-      (.offer is Keys/DISPLAY_NAME (text/to-text display-name))
+  (do (.offer is Keys/DISPLAY_NAME (text/to-text display-name))
       is))
 
 (defn add-lore
@@ -42,8 +40,7 @@
 
 (defn add-item-stack
   [^Item item ^ItemStack is]
-  (do (println is)
-      (.offer item Keys/REPRESENTED_ITEM (.createSnapshot is))
+  (do (.offer item Keys/REPRESENTED_ITEM (.createSnapshot is))
       item))
 
 (defn spawn-item

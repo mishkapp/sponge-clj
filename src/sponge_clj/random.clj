@@ -6,8 +6,11 @@
   (int (+ (rand-int (+ 1 (- to from))) from)))
 
 (defn chance
-  "Return true if \"hits\" chance, chance is ratio"
+  "Return true if \"hits\" chance, chance is ratio or float [0..1]"
   [val]
-  (let [num (numerator val)
-        den (denominator val)]
-    (<= (range 1 den) num)))
+  (if (ratio? val)
+    (let [num (numerator val)
+          den (denominator val)]
+      (<= (from-range 1 den) num)))
+    (<= (rand) val)
+  )

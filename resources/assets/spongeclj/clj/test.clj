@@ -14,7 +14,7 @@
     [sponge-clj.random]
     [sponge-clj.enchantments]
     )
-  (:import (org.spongepowered.api.event.entity MoveEntityEvent)
+  (:import (org.spongepowered.api.event.entity MoveEntityEvent ConstructEntityEvent SpawnEntityEvent)
            (org.spongepowered.api.entity.living.player Player)
            (org.spongepowered.api.event.network ClientConnectionEvent$Join)))
 
@@ -39,7 +39,6 @@
                  (enchantment "minecraft:fire_aspect" 3)
                  ]
   :action-delay (seconds 1.5)
-
   :action-fn sword-use)
 
 (def-mob
@@ -50,6 +49,7 @@
   :damage 4                                                 ;??
   :speed 0.2
   ;:armor            2
+  ;todo: add passenger
   :damage-modifiers {
                      :attack     2.5
                      :fire       -1
@@ -66,6 +66,26 @@
               :main-hand (lambda-item-stack :skeleton-king-sword)
               :off-hand  (item-stack "minecraft:shield")
               }
+  )
+
+(register-spawn
+  :id :skeleton-king-overworld-spawner
+  :mob :skeleton-king
+  :worlds ["world"]
+  :biomes ["plains"]
+  :entity-types ["minecraft:zombie" "minecraft:skeleton"]
+  :chance 1/3
+  :priority 1
+  :blocks ["minecraft:grass"]
+  ; Possible causes
+  ; sponge:block_spawning sponge:breeding sponge:chunk_load sponge:custom
+  ; sponge:dispense sponge:dropped_item sponge:experience sponge:falling_block
+  ; sponge:mob_spawner sponge:passive sponge:placement sponge:plugin sponge:projectile
+  ; sponge:spawn_egg sponge:structure sponge:tnt_ignite sponge:weather sponge:world_spawner
+  :causes ["sponge:world_spawner"]
+  :type :replace
+  ;raw predicate that handles destructured ConstructEntityEvent$Pre and decides can mob be spawned or not
+  ;:raw-predicate predicate-fn
   )
 
 ;(def-cmd
@@ -98,32 +118,17 @@
             (let [entity (:entity event)]
               (send-message entity "Hue hue")))
   :delay (seconds 1)
+  )
 
-  ;(def-walk-trigger
-  ;   :predicate  (fn [{:keys                 [event player block]
-  ;                     {:keys [world x y z]} :location}]
-  ;                 (and (= x 100)
-  ;                      (= y 60)
-  ;                      (= z 100)))
-  ;   :action     (fn [{:keys                 [event player block]
-  ;                     {:keys [world x y z]} :location}]
-  ;                 (teleport-to player (location "world" 200 60 200)))
-  ;   :delay      (seconds 1)
-  ;   :permission "testtrigger.perm")
+(comment
+  (sponge-clj.sponge/>>sponge #(spawn-mob :skeleton-king {:world "world" :x 35 :y 64 :z 308}))
 
-  ;(def-walktp-trigger
-  ;  {
-  ;   :from (location "world" 60 90 90)
-  ;   :to   (location "world" 200 60 200)
-  ;   })
+  (register-listener SpawnEntityEvent (fn [event] (println (:event event))))
 
-  (comment
-    (sponge-clj.sponge/>>sponge #(spawn-mob :skeleton-king {:world "world" :x 35 :y 64 :z 308}))
-
-    (register-listener ClientConnectionEvent$Join (fn [event]
-                                                    (let [^ClientConnectionEvent$Join eve (:event event)
-                                                          player                          (-> eve
-                                                                                              (.getCause)
-                                                                                              (.root))]
-                                                      (send-message player "Ho-hoho"))))
-    ))
+  (register-listener ClientConnectionEvent$Join (fn [event]
+                                                  (let [^ClientConnectionEvent$Join eve (:event event)
+                                                        player                          (-> eve
+                                                                                            (.getCause)
+                                                                                            (.root))]
+                                                    (send-message player "Ho-hoho"))))
+  )

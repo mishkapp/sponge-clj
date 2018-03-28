@@ -1,6 +1,7 @@
 (ns sponge-clj.world
   (:import (org.spongepowered.api.world Location World)
-           (org.spongepowered.api Sponge)))
+           (org.spongepowered.api Sponge)
+           (org.spongepowered.api.block BlockState)))
 
 (defn block-location-equals?
   [loc1 loc2]
@@ -28,12 +29,26 @@
 
 (defn get-world
   (^World [loc]
-    (-> (Sponge/getServer)
-        (.getWorld (:world loc))
-        (.get))))
+   (do (-> (Sponge/getServer)
+         (.getWorld (:world loc))
+         (.orElse nil)))))
+
+(defn get-world-name
+  [loc]
+  (-> (get-world loc)
+      (.getName)))
 
 (defn as-sponge-location
   (^Location [loc]
     (-> (get-world loc)
         (.getLocation (:x loc) (:y loc) (:z loc)))))
 
+(defn get-biome
+  [loc]
+  (-> (get-world loc)
+      (.getBiome (:x loc) (:y loc) (:z loc))))
+
+(defn get-block
+  (^BlockState [loc]
+   (-> (get-world loc)
+       (.getBlock (:x loc) (:y loc) (:z loc)))))

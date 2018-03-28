@@ -1,7 +1,8 @@
 (ns sponge-clj.events
   (:require [sponge-clj.sponge :as sp]
-            [sponge-clj.cause :as c])
-  (:import (org.spongepowered.api.event.entity MoveEntityEvent TargetEntityEvent DamageEntityEvent)
+            [sponge-clj.cause :as c]
+            [sponge-clj.world :as w])
+  (:import (org.spongepowered.api.event.entity MoveEntityEvent TargetEntityEvent DamageEntityEvent SpawnEntityEvent ConstructEntityEvent)
            (org.spongepowered.api.event Event EventListener Order)
            (org.spongepowered.api Sponge)
            (org.spongepowered.api.event.block InteractBlockEvent)
@@ -56,6 +57,24 @@
                     :damage-type damage-type
                     :base-damage base-damage
                     :final-damage final-damage)))
+  SpawnEntityEvent
+  (destructure-event [^SpawnEntityEvent event]
+    (let [result {:event event :cause (.getCause event)}
+          entities (-> event
+                          (.getEntities))]
+      (assoc result :entities entities)))
+  ConstructEntityEvent
+  (destructure-event [^ConstructEntityEvent event]
+    (let [result {:event event :cause (.getCause event)}
+          entity-type (-> event
+                          (.getTargetType)
+                          (.getId))
+          location (-> event
+                       (.getTransform)
+                       (.getLocation)
+                       (w/location))]
+      (assoc result :entity-type entity-type
+                    :location location)))
   TargetEntityEvent
   (destructure-event [^TargetEntityEvent event]
     (let [result        {:event event :cause (.getCause event)}
