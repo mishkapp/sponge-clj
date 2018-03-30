@@ -76,6 +76,12 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
         (CommandResult/empty))
     (CommandResult/empty)))
 
+(defn reload-cmd
+  [^CommandSource src ^CommandContext args]
+  (load-file (-> @private-config-dir
+                 (.resolve "test.clj")
+                 (.toString))))
+
 (defn init-commands
   []
   (let [eval-cmd (-> (CommandSpec/builder)
@@ -84,7 +90,12 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
                      (.executor (proxy [CommandExecutor] []
                                   (execute [src args]
                                     (apply eval-cmd [src args]))))
-                     (.build))]
+                     (.build))
+        reload-cmd (-> (CommandSpec/builder)
+                       (.permission "spongeclj.reload")
+                       (.executor (proxy [CommandExecutor] []
+                                    (execute [src args]
+                                      (apply reload-cmd [src args])))))]
     (-> (Sponge/getCommandManager)
         (.register @plugin eval-cmd ["eval"]))))
 
