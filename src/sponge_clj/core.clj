@@ -97,7 +97,9 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
                                     (execute [src args]
                                       (apply reload-cmd [src args])))))]
     (-> (Sponge/getCommandManager)
-        (.register @plugin eval-cmd ["eval"]))))
+        (.register @plugin eval-cmd ["eval"]))
+    (-> (Sponge/getCommandManager)
+        (.register @plugin reload-cmd ["reload"]))))
 
 (defn main-onServerStart
   [this event]
