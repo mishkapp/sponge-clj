@@ -30,8 +30,8 @@
           entity        (-> event
                             (.getTargetEntity))]
       (assoc result :entity entity
-                    :location-to location-to
-                    :location-from location-from)))
+                    :location-to (w/location location-to)
+                    :location-from (w/location location-from))))
   InteractBlockEvent
   (destructure-event [^InteractBlockEvent event]
     (let [result        {:event event :cause (.getCause event)}

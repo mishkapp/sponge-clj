@@ -112,8 +112,8 @@
   :predicate (fn [event]
                (let [location-to (:location-to event)
                      entity      (:entity event)]
-                 (and (isa? Player entity)
-                      (block-location-equals? location-to (location "world" 32 65 310)))))
+                 (and (instance? Player entity)
+                      (block-location-equals? location-to (location "world" 35 65 310)))))
   :action (fn [event]
             (let [entity (:entity event)]
               (send-message entity "Hue hue")))

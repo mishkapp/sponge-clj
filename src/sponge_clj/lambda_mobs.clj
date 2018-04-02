@@ -3,15 +3,15 @@
             [sponge-clj.database :as db]
             [sponge-clj.world :as w]
             [sponge-clj.items :as i]
-            [sponge-clj.events :as ev]
+            [sponge-clj.triggers :as t]
             [clojure.tools.trace :refer :all]
-            [sponge-clj.cause :as c]
-            [sponge-clj.random :as rnd])
+            [sponge-clj.random :as rnd]
+            [sponge-clj.cause :as c])
   (:import (org.spongepowered.api.world World)
            (org.spongepowered.api.entity Entity)
            (org.spongepowered.api.entity.living Living)
            (org.spongepowered.api.entity.living.player Player)
-           (org.spongepowered.api.event.entity DestructEntityEvent$Death DamageEntityEvent SpawnEntityEvent)
+           (org.spongepowered.api.event.entity DestructEntityEvent$Death DamageEntityEvent SpawnEntityEvent DestructEntityEvent MoveEntityEvent)
            (org.spongepowered.api.event.item.inventory DropItemEvent$Destruct)
            (org.spongepowered.api.event.cause EventContextKeys)))
 
@@ -73,16 +73,14 @@
 
 (defn process-entity-death
   [event ^Living entity]
-  (if (not (isa? Player entity))
-    (when-let [id (db/get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
-      (let [mob (get-mob id)]
-        (do (mark-as-recently-dead id entity)
-            (unmark-lambda-mob entity))))
-    nil))
+  (when-let [id (db/get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
+    (let [mob (get-mob id)]
+      (do (mark-as-recently-dead id entity)
+          (unmark-lambda-mob entity)))))
 
 (defn process-items-drop
-  [event, ^Entity entity]
-  (if (not (isa? Player entity))
+  [event]
+  (when-let [entity (c/first-in (:cause event) Entity)]
     (when-let [id (get @recently-dead (keyword (str (.getUniqueId entity))))]
       (let [mob   (get-mob id)
             loc   (e/get-loc entity)
@@ -93,42 +91,39 @@
               (i/spawn-item loc item)))
           (swap! recently-dead dissoc id)
           (.setCancelled (:event event) true)
-          )))
-    nil))
+          )))))
 
 (defn process-entity-damage
   [^DamageEntityEvent event, ^Entity entity]
-  (if (not (isa? Player entity))
-    (when-let [id (db/get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
-      (let [mob              (get-mob id)
-            raw-event        (:event event)
-            base-damage      (:base-damage event)
-            damage-type      (:damage-type event)
-            damage-modifiers (:damage-modifiers mob)
-            new-damage       (cond (contains? damage-modifiers damage-type)
-                                   (* (get damage-modifiers damage-type) base-damage)
-                                   :else base-damage)]
-        (do (.setBaseDamage raw-event new-damage))))
-    nil))
+  (when-let [id (db/get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
+    (let [mob              (get-mob id)
+          raw-event        (:event event)
+          base-damage      (:base-damage event)
+          damage-type      (:damage-type event)
+          damage-modifiers (:damage-modifiers mob)
+          new-damage       (cond (contains? damage-modifiers damage-type)
+                                 (* (get damage-modifiers damage-type) base-damage)
+                                 :else base-damage)]
+      (do (.setBaseDamage raw-event new-damage)))))
 
 (defn- cause?
   [cause spawn]
   (let [spawn-causes (:causes spawn)]
-      (or (nil? spawn-causes)
+    (or (nil? spawn-causes)
         (.contains (:causes spawn) cause))))
 
 (defn- entity?
   [entity spawn]
   (let [spawn-entities (:entity-types spawn)]
     (or (nil? spawn-entities)
-      (.contains spawn-entities entity))))
+        (.contains spawn-entities entity))))
 
 (defn- world?
   [location spawn]
   (let [spawn-worlds (:worlds spawn)
         world        (w/get-world-name location)]
     (or (nil? spawn-worlds)
-      (.contains spawn-worlds world))))
+        (.contains spawn-worlds world))))
 
 (defn- biome?
   [location spawn]
@@ -137,7 +132,7 @@
         biome-name   (-> biome
                          (.getId))]
     (or (nil? spawn-biomes)
-      (.contains spawn-biomes biome-name))))
+        (.contains spawn-biomes biome-name))))
 
 (defn- block?
   [location spawn]
@@ -148,7 +143,7 @@
                          (.getType)
                          (.getName))]
     (or (nil? spawn-blocks)
-      (.contains spawn-blocks block-type))))
+        (.contains spawn-blocks block-type))))
 
 (defn- predicate?
   [spawn event]
@@ -183,7 +178,7 @@
 (defn- process-entities-for-spawn
   [event]
   (let [entities (:entities event)
-        cause (:cause event)]
+        cause    (:cause event)]
     (dorun (map #(process-entity-spawn % (e/get-loc %) cause event) entities))))
 
 (defn def-mob
@@ -213,24 +208,35 @@
                :raw-predicate raw-predicate}]
     (swap! spawns assoc id spawn)))
 
-(ev/register-listener
-  DestructEntityEvent$Death
-  (fn [event]
-    (process-entity-death event (:entity event))))
+(t/def-trigger
+  :id :lambda-mob-death
+  :event-type DestructEntityEvent$Death
+  :predicate #(not (isa? Player (:entity %)))
+  :action #(process-entity-death % (:entity %))
+  :delay 0
+  )
 
-(ev/register-listener
-  DropItemEvent$Destruct
-  (fn [event]
-    (when-let [entity (c/first-in (:cause event) Entity)]
-      (process-items-drop event entity))
-    ))
+(t/def-trigger
+  :id :lambda-mob-item-drop
+  :event-type DropItemEvent$Destruct
+  :action #(process-items-drop %)
+  :delay 0
+  )
 
-(ev/register-listener
-  DamageEntityEvent
-  (fn [event]
-    (process-entity-damage event (:entity event))))
+(t/def-trigger
+  :id :lambda-mob-damage
+  :event-type DamageEntityEvent
+  :predicate #(not (isa? Player (:entity %)))
+  :action #(process-entity-damage % (:entity %))
+  :delay 0
+  )
 
-(ev/register-listener
-  SpawnEntityEvent
-  (fn [event]
-    (process-entities-for-spawn event)))
+(t/def-trigger
+  :id :lambda-mobs-spawn
+  :event-type SpawnEntityEvent
+  :predicate #(not (isa? Player (:entity %)))
+  :action #(process-entities-for-spawn %)
+  :delay 0
+  )
+
+;todo: remove entity from registry when server despawn it (not death)
