@@ -1,4 +1,4 @@
-(defproject sponge-clj "0.1.0-SNAPSHOT"
+(defproject sponge-clj "0.1.0"
   :description "Clojure DSL for Sponge"
   :url "http://mishkapp.com"
   :license {:name "Eclipse Public License"
