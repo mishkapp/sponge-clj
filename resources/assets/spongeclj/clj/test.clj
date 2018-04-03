@@ -13,10 +13,15 @@
     [sponge-clj.events]
     [sponge-clj.random]
     [sponge-clj.enchantments]
+    [sponge-clj.commands]
+    [sponge-clj.text]
+    [clojure.reflect]
     )
   (:import (org.spongepowered.api.event.entity MoveEntityEvent ConstructEntityEvent SpawnEntityEvent)
            (org.spongepowered.api.entity.living.player Player)
-           (org.spongepowered.api.event.network ClientConnectionEvent$Join)))
+           (org.spongepowered.api.event.network ClientConnectionEvent$Join)
+           (org.spongepowered.api.command CommandSource)
+           (org.spongepowered.api.command.args CommandContext)))
 
 (defn sword-use
   "Executed on sword use"
@@ -88,23 +93,31 @@
   ;:raw-predicate predicate-fn
   )
 
-;(def-cmd
-;  {
-;   :executor test-fn
-;   :permission  "testcmd.exec"
-;   :arguments [
-;               (string-arg "id")
-;               (player-arg "player")
-;               ]
-;   :description "Just test command"
-;   })
-;
-;(def-cmd-child
-;  {
-;   :permission "testcmd.exec.child"
-;   :arguments [(string-arg "id")]
-;   :description "Just a child command"
-;   })
+(def cmd-a (cmd
+             :executor #(do (println %1)
+                            (println (:id %2)))
+             :permission "testcmd.exec.child.a"
+             :arguments (string-arg "id")
+             :description "Just a child command A"))
+
+(def cmd-b (cmd
+             :executor (fn [^CommandSource src, args]
+                         (do (println args)
+                             (send-message src "cmd-b")))
+             :permission "testcmd.exec.child.b"
+             :arguments (string-arg "id")
+             :description "Just a child command B"))
+
+(def-cmd
+  :aliases ["test" "tst"]
+  ;:executor test-fn
+  :permission "testcmd.exec"
+  :children {["a"]     cmd-a
+             ["b" "v"] cmd-b}
+  :description "Just test command"
+  :extended-description "And it's extended description")
+
+
 
 (def-trigger
   :id :my-block
