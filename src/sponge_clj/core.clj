@@ -95,7 +95,8 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
                        (.permission "spongeclj.reload")
                        (.executor (proxy [CommandExecutor] []
                                     (execute [src args]
-                                      (apply reload-cmd [src args])))))]
+                                      (apply reload-cmd [src args]))))
+                       (.build))]
     (-> (Sponge/getCommandManager)
         (.register @plugin eval-cmd ["eval"]))
     (-> (Sponge/getCommandManager)
