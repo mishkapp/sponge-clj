@@ -2,7 +2,8 @@
   (:require [sponge-clj.logger :as logger]
             [clojure.tools.nrepl.server :refer (start-server stop-server)]
             [sponge-clj.util :as util]
-            [sponge-clj.text :as text])
+            [sponge-clj.text :as text]
+            [sponge-clj.commands :as cmd])
   (:import (org.spongepowered.api.event Listener)
            (org.spongepowered.api.plugin Plugin PluginContainer)
            (com.google.inject Inject)
@@ -68,39 +69,29 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
            :constructors {[] []})
 
 (defn eval-cmd
-  [^CommandSource src ^CommandContext args]
-  (if-let [expr (-> args
-                    (.getOne "expression")
-                    (.get))]
-    (do (.sendMessage src ^Text (text/to-text (str (eval (read-string expr)))))
-        (CommandResult/empty))
-    (CommandResult/empty)))
+  [^CommandSource src args]
+  (let [expr (first (:expression args))]
+    (.sendMessage src ^Text (text/to-text (str (eval (read-string expr)))))))
 
 (defn reload-cmd
-  [^CommandSource src ^CommandContext args]
+  [^CommandSource src args]
   (load-file (-> @private-config-dir
                  (.resolve "test.clj")
                  (.toString))))
 
 (defn init-commands
   []
-  (let [eval-cmd (-> (CommandSpec/builder)
-                     (.permission "spongeclj.eval")
-                     (.arguments (GenericArguments/remainingJoinedStrings (Text/of "expression")))
-                     (.executor (proxy [CommandExecutor] []
-                                  (execute [src args]
-                                    (apply eval-cmd [src args]))))
-                     (.build))
-        reload-cmd (-> (CommandSpec/builder)
-                       (.permission "spongeclj.reload")
-                       (.executor (proxy [CommandExecutor] []
-                                    (execute [src args]
-                                      (apply reload-cmd [src args]))))
-                       (.build))]
-    (-> (Sponge/getCommandManager)
-        (.register @plugin eval-cmd ["eval"]))
-    (-> (Sponge/getCommandManager)
-        (.register @plugin reload-cmd ["reload"]))))
+  (do (cmd/def-cmd
+        :aliases ["eval"]
+        :executor eval-cmd
+        :arguments (cmd/remaining-joined-strings-arg "expression")
+        :permission "spongeclj.eval"
+        :description "Raw clojure evaluation")
+      (cmd/def-cmd
+        :aliases ["reload"]
+        :executor reload-cmd
+        :permission "spongeclj.reload"
+        :description "Reload scripts")))
 
 (defn main-onServerStart
   [this event]
