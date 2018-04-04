@@ -1,8 +1,8 @@
 (defproject sponge-clj "0.2.1"
   :description "Clojure DSL for Sponge"
   :url "http://mishkapp.com"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :license {:name "GNU General Public License v3.0"
+            :url "https://www.gnu.org/licenses/gpl-3.0.ru.html"}
   :repositories [["sponge" "https://repo.spongepowered.org/maven"]]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [io.replikativ/konserve "0.4.11"]
