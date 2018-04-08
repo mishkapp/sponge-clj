@@ -43,6 +43,8 @@
   "Creates CommandSpec object"
   [& {:keys [executor permission arguments children description extended-description]
       :as   cmd-map}]
+  {:pre [(or (some? executor)
+             (some? children))]}
   (cond-> (CommandSpec/builder)
           (some? permission) (.permission permission)
           (some? executor) (.executor (proxy [CommandExecutor] []
