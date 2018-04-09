@@ -5,7 +5,7 @@
 (defn give-item
   [^Player player ^ItemStack is]
   {:pre [(some? player) (some? is)]}
-  (do (-> player
-          (.getInventory)
-          (.offer is))
-      player))
+  (-> player
+      (.getInventory)
+      (.offer is))
+  player)

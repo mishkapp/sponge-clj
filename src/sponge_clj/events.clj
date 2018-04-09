@@ -96,7 +96,11 @@
                  (handle [event]
                    (fn (destructure-event event))))]
      (-> (Sponge/getEventManager)
-         (.registerListener (sp/get-plugin'), ^Class event-type, order, before-modifications, proxy)))))
+         (.registerListener (sp/get-plugin')
+                            ^Class event-type
+                            ^Order order
+                            ^boolean before-modifications
+                            proxy)))))
 
 (defn unregister-all
   "Deregisters all listeners from this plugin"

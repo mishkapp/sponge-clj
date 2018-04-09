@@ -51,7 +51,7 @@
                                         (execute [src args]
                                           (process-cmd-result
                                             (apply executor [src (prepare-args args)])))))
-          (some? arguments) (.arguments (into-array CommandElement arguments))
+          (some? arguments) (.arguments ^"[Lorg.spongepowered.api.command.args.CommandElement;" (into-array CommandElement arguments))
           (some? description) (.description (t/to-text description))
           (some? extended-description) (.extendedDescription (t/to-text extended-description))
           (some? children) (.children children)

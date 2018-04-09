@@ -28,13 +28,15 @@
          (some? event-type)
          (some? action)
          (fn? action)]}
-  (do (swap! last-uses assoc id (System/currentTimeMillis))
-      (swap! triggers assoc id trigger)))
+  (swap! last-uses assoc id (System/currentTimeMillis))
+  (swap! triggers assoc id trigger))
 
 (defn def-walk-trigger
   [& {:as trigger}]
   (apply def-trigger (assoc trigger :event MoveEntityEvent)))
 
-(ev/register-listener Event
-                      (fn [event]
-                        (dispatch-event event)))
+(defn init
+  []
+  (ev/register-listener Event
+                        (fn [event]
+                          (dispatch-event event))))

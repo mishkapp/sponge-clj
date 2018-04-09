@@ -18,37 +18,37 @@
   [^Entity entity, display-name]
   {:pre [(some? entity)
          (some? display-name)]}
-  (do (.offer entity Keys/DISPLAY_NAME (to-text display-name))
-      entity))
+  (.offer entity Keys/DISPLAY_NAME (to-text display-name))
+  entity)
 
 (defn set-max-health
   [^Entity entity, health]
   {:pre [(some? entity)
          (some? health)]}
-  (do (.offer entity Keys/MAX_HEALTH (double health))
-      (.offer entity Keys/HEALTH (double health))
-      entity))
+  (.offer entity Keys/MAX_HEALTH (double health))
+  (.offer entity Keys/HEALTH (double health))
+  entity)
 
 (defn set-damage
   [^Entity entity, damage]
   {:pre [(some? entity)
          (some? damage)]}
-  (do (.offer entity Keys/ATTACK_DAMAGE damage)
-      entity))
+  (.offer entity Keys/ATTACK_DAMAGE damage)
+  entity)
 
 (defn set-persistent
   [^Entity entity, value]
   {:pre [(some? entity)
          (some? value)]}
-  (do (.offer entity Keys/PERSISTS value)
-      entity))
+  (.offer entity Keys/PERSISTS value)
+  entity)
 
 (defn set-speed
   [^Entity entity, value]
   {:pre [(some? entity)
          (some? value)]}
-  (do (.offer entity Keys/WALKING_SPEED value)
-      entity))
+  (.offer entity Keys/WALKING_SPEED value)
+  entity)
 
 (defn spawn
   [^Entity entity ^World world]

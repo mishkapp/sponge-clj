@@ -13,9 +13,9 @@
 (defn location-equals?
   [loc1 loc2 accuracy]
   (and (= (:world loc1) (:world loc2))
-       (<= (Math/abs (- (:x loc1) (:x loc2))) accuracy)
-       (<= (Math/abs (- (:y loc1) (:y loc2))) accuracy)
-       (<= (Math/abs (- (:z loc1) (:z loc2))) accuracy)))
+       (<= (Math/abs ^double (- (:x loc1) (:x loc2))) accuracy)
+       (<= (Math/abs ^double (- (:y loc1) (:y loc2))) accuracy)
+       (<= (Math/abs ^double (- (:z loc1) (:z loc2))) accuracy)))
 
 (defn location
   ([^Location loc]
@@ -30,7 +30,7 @@
 (defn get-world
   (^World [loc]
    (do (-> (Sponge/getServer)
-         (.getWorld (:world loc))
+         (.getWorld ^String (:world loc))
          (.orElse nil)))))
 
 (defn get-world-name
@@ -41,7 +41,9 @@
 (defn as-sponge-location
   (^Location [loc]
     (-> (get-world loc)
-        (.getLocation (:x loc) (:y loc) (:z loc)))))
+        (.getLocation ^double (:x loc)
+                      ^double (:y loc)
+                      ^double (:z loc)))))
 
 (defn get-biome
   [loc]

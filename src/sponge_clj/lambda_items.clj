@@ -1,9 +1,9 @@
 (ns sponge-clj.lambda-items
-  (:require [sponge-clj.events :as ev]
-            [sponge-clj.cause  :as c]
+  (:require [sponge-clj.cause :as c]
             [sponge-clj.enchantments :refer :all]
             [sponge-clj.items :refer :all]
-            [sponge-clj.util :refer :all])
+            [sponge-clj.util :refer :all]
+            [sponge-clj.triggers :as t])
   (:import (org.spongepowered.api.item.inventory ItemStack)
            (org.spongepowered.api.entity.living.player Player)
            (org.spongepowered.api.data DataQuery)
@@ -48,10 +48,13 @@
       (keyword)))
 
 (defn process-item-use
-  [^ItemStack item-stack ^Player player]
-  {:pre [(some? item-stack)
-         (some? player)]}
-  (when-let* [lambda-id   (get-lambda-item-id item-stack)
+  [event]
+  {:pre [(some? event)]}
+  (when-let* [player     (c/first-in (:cause event) Player)
+              item-stack (-> player
+                             (.getItemInHand (.getHandType (:event event)))
+                             (.orElse nil))
+              lambda-id   (get-lambda-item-id item-stack)
               lambda-item (get @items lambda-id)
               action      (:action-fn lambda-item)]
     (apply action [player item-stack])))
@@ -62,11 +65,10 @@
          (some? material)]}
   (register id item))
 
-(ev/register-listener
-  InteractBlockEvent$Secondary$MainHand
-  (fn [event]
-    (when-let* [player     (c/first-in (:cause event) Player)
-                item-stack (-> player
-                               (.getItemInHand (.getHandType (:event event)))
-                               (.orElse nil))]
-               (process-item-use item-stack player))))
+(t/def-trigger
+  :id :lambda-items-use
+  :event-type InteractBlockEvent$Secondary$MainHand
+  :predicate #(some? (c/first-in (:cause %) Player))
+  :action #(process-item-use %)
+  :delay 0
+  )

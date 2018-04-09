@@ -9,8 +9,8 @@
   "Adds enchantments to item"
   [^ItemStack item, enchantments]
   {:pre [(some? item), (vector? enchantments)]}
-  (do (.offer item Keys/ITEM_ENCHANTMENTS enchantments)
-      item))
+  (.offer item Keys/ITEM_ENCHANTMENTS enchantments)
+  item)
 
 (defn add-enchantment
   "Adds enchantment to item"
@@ -18,8 +18,8 @@
   {:pre [(some? item), (some? ench)]}
   (let [enchantments (-> (.get item Keys/ITEM_ENCHANTMENTS)
                          (.orElse []))]
-    (do (.offer item Keys/ITEM_ENCHANTMENTS (concat enchantments [ench]))
-        item)))
+    (.offer item Keys/ITEM_ENCHANTMENTS (concat enchantments [ench]))
+    item))
 
 (defn enchantment-type
   "Retrieves enchantment type by id"

@@ -3,16 +3,15 @@
             [clojure.tools.nrepl.server :refer (start-server stop-server)]
             [sponge-clj.util :as util]
             [sponge-clj.text :as text]
-            [sponge-clj.commands :as cmd])
+            [sponge-clj.commands :as cmd]
+            [sponge-clj.triggers :as triggers])
   (:import (org.spongepowered.api.event Listener)
            (org.spongepowered.api.plugin Plugin PluginContainer)
            (com.google.inject Inject)
            (java.nio.file Path)
            (org.spongepowered.api Sponge)
-           (org.spongepowered.api.command.spec CommandSpec CommandExecutor)
-           (org.spongepowered.api.command.args GenericArguments CommandContext)
            (org.spongepowered.api.text Text)
-           (org.spongepowered.api.command CommandSource CommandResult)))
+           (org.spongepowered.api.command CommandSource)))
 
 (def ^:private ^PluginContainer plugin (atom nil))
 
@@ -82,33 +81,35 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
 
 (defn init-commands
   []
-  (do (cmd/def-cmd
-        :aliases ["eval"]
-        :executor eval-cmd
-        :arguments [(cmd/remaining-joined-strings-arg "expression")]
-        :permission "spongeclj.eval"
-        :description "Raw clojure evaluation")
-      (cmd/def-cmd
-        :aliases ["reload"]
-        :executor reload-cmd
-        :permission "spongeclj.reload"
-        :description "Reload scripts")))
+  (cmd/def-cmd
+    :aliases ["eval"]
+    :executor eval-cmd
+    :arguments [(cmd/remaining-joined-strings-arg "expression")]
+    :permission "spongeclj.eval"
+    :description "Raw clojure evaluation")
+
+  (cmd/def-cmd
+    :aliases ["reload"]
+    :executor reload-cmd
+    :permission "spongeclj.reload"
+    :description "Reload scripts"))
 
 (defn main-onServerStart
   [this event]
-  (do (start-repl "0.0.0.0" 40000)
-      (reset! private-config-dir (-> (Sponge/getConfigManager)
-                                     (.getPluginConfig (get-plugin))
-                                     (.getDirectory)))
-      (-> (get-plugin)
-          (.getAsset "clj/test.clj")
-          (.get)
-          (.copyToDirectory @private-config-dir))
-      (load-file (-> @private-config-dir
-                     (.resolve "test.clj")
-                     (.toString)))
-      (init-commands)
-      (logger/info "Sponge-clj enabled!")))
+  (start-repl "0.0.0.0" 40000)
+  (triggers/init)
+  (reset! private-config-dir (-> (Sponge/getConfigManager)
+                                 (.getPluginConfig (get-plugin))
+                                 (.getDirectory)))
+  (-> (get-plugin)
+      (.getAsset "clj/test.clj")
+      (.get)
+      (.copyToDirectory @private-config-dir))
+  (load-file (-> @private-config-dir
+                 (.resolve "test.clj")
+                 (.toString)))
+  (init-commands)
+  (logger/info "Sponge-clj enabled!"))
 
 (defn main-setLogger
   [this lg]

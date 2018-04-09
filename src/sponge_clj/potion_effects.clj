@@ -10,8 +10,8 @@
   {:pre [(some? entity), (some? effect)]}
   (let [effects (-> (.get entity Keys/POTION_EFFECTS)
                     (.orElse []))]
-    (do (.offer entity Keys/POTION_EFFECTS (concat effects [effect]))
-        entity)))
+    (.offer entity Keys/POTION_EFFECTS (concat effects [effect]))
+    entity))
 
 (defn effect-type
   "Retrieves potion type by id"

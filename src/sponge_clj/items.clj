@@ -28,20 +28,20 @@
   [^ItemStack is display-name]
   {:pre [(some? is)
          (some? display-name)]}
-  (do (.offer is Keys/DISPLAY_NAME (text/to-text display-name))
-      is))
+  (.offer is Keys/DISPLAY_NAME (text/to-text display-name))
+  is)
 
 (defn add-lore
   [^ItemStack is lore]
   {:pre [(some? is)
          (some? lore)]}
-  (do (.offer is Keys/ITEM_LORE (map text/to-text lore))
-      is))
+  (.offer is Keys/ITEM_LORE (map text/to-text lore))
+  is)
 
 (defn add-item-stack
   [^Item item ^ItemStack is]
-  (do (.offer item Keys/REPRESENTED_ITEM (.createSnapshot is))
-      item))
+  (.offer item Keys/REPRESENTED_ITEM (.createSnapshot is))
+  item)
 
 (defn spawn-item
   [loc ^ItemStack is]

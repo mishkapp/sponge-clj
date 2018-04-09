@@ -101,10 +101,10 @@
           base-damage      (:base-damage event)
           damage-type      (:damage-type event)
           damage-modifiers (:damage-modifiers mob)
-          new-damage       (cond (contains? damage-modifiers damage-type)
-                                 (* (get damage-modifiers damage-type) base-damage)
-                                 :else base-damage)]
-      (do (.setBaseDamage raw-event new-damage)))))
+          new-damage       (if (contains? damage-modifiers damage-type)
+                             (* (get damage-modifiers damage-type) base-damage)
+                             base-damage)]
+      (.setBaseDamage raw-event new-damage))))
 
 (defn- cause?
   [cause spawn]
