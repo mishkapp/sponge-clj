@@ -5,11 +5,13 @@
 
 (def ^:private storages (atom {}))
 
+(def db-dir "./spongeclj.db/")
+
 (defn get-storage
   [db-key]
   (if (contains? @storages db-key)
     (get @storages db-key)
-    (get (swap! storages assoc db-key (<!! (kfs/new-fs-store (str "./spongeclj.db/" (name db-key))))) db-key)))
+    (get (swap! storages assoc db-key (<!! (kfs/new-fs-store (str db-dir (name db-key))))) db-key)))
 
 (defn exists?
   [db-id key]

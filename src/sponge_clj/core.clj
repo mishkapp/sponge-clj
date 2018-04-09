@@ -4,7 +4,9 @@
             [sponge-clj.util :as util]
             [sponge-clj.text :as text]
             [sponge-clj.commands :as cmd]
-            [sponge-clj.triggers :as triggers])
+            [sponge-clj.triggers :as triggers]
+            [clojure.java.io :as io]
+            [sponge-clj.database :as db])
   (:import (org.spongepowered.api.event Listener)
            (org.spongepowered.api.plugin Plugin PluginContainer)
            (com.google.inject Inject)
@@ -93,9 +95,16 @@
     :permission "spongeclj.reload"
     :description "Reload scripts"))
 
+(defn init-db
+  []
+  (let [db-dir-file (io/as-file db/db-dir)]
+    (cond (not (.exists db-dir-file))
+          (.mkdir db-dir-file))))
+
 (defn main-onServerStart
   [this event]
   (start-repl "0.0.0.0" 40000)
+  (init-db)
   (triggers/init)
   (reset! private-config-dir (-> (Sponge/getConfigManager)
                                  (.getPluginConfig (get-plugin))
