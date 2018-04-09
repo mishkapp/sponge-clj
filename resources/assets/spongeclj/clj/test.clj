@@ -97,7 +97,7 @@
              :executor #(do (println %1)
                             (println (:id %2)))
              :permission "testcmd.exec.child.a"
-             :arguments (string-arg "id")
+             :arguments [(string-arg "id")]
              :description "Just a child command A"))
 
 (def cmd-b (cmd
@@ -105,7 +105,7 @@
                          (do (println args)
                              (send-message src "cmd-b")))
              :permission "testcmd.exec.child.b"
-             :arguments (string-arg "id")
+             :arguments [(string-arg "id")]
              :description "Just a child command B"))
 
 (def-cmd

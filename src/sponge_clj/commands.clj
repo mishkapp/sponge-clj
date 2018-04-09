@@ -51,7 +51,7 @@
                                         (execute [src args]
                                           (process-cmd-result
                                             (apply executor [src (prepare-args args)])))))
-          (some? arguments) (.arguments ^CommandElement arguments)
+          (some? arguments) (.arguments (into-array CommandElement arguments))
           (some? description) (.description (t/to-text description))
           (some? extended-description) (.extendedDescription (t/to-text extended-description))
           (some? children) (.children children)
@@ -64,7 +64,7 @@
   (unregister-cmd aliases)
   (-> (Sponge/getCommandManager)
       (.register ^PluginContainer (sponge/get-plugin')
-                 ^CommandSpec (apply cmd (flatten (vec (dissoc command :aliases))))
+                 ^CommandSpec (apply cmd (apply concat (map vector (keys command) (vals command))))
                  ^List aliases)))
 
 (defn string-arg

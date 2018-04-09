@@ -58,6 +58,7 @@
                            :description "Clojure in Minecraft!"
                            :url         "http://mishkapp.com"
                            :authors     ["mishkapp"]
+                           :version     "%VERSION%"
                            }}
 sponge_clj.Core
            :prefix "main-"
@@ -84,7 +85,7 @@ onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] vo
   (do (cmd/def-cmd
         :aliases ["eval"]
         :executor eval-cmd
-        :arguments (cmd/remaining-joined-strings-arg "expression")
+        :arguments [(cmd/remaining-joined-strings-arg "expression")]
         :permission "spongeclj.eval"
         :description "Raw clojure evaluation")
       (cmd/def-cmd
