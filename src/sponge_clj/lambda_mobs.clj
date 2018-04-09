@@ -1,6 +1,6 @@
 (ns sponge-clj.lambda-mobs
   (:require [sponge-clj.entity :as e]
-            [sponge-clj.database :as db]
+            [sponge-clj.database :refer :all]
             [sponge-clj.world :as w]
             [sponge-clj.items :as i]
             [sponge-clj.triggers :as t]
@@ -37,7 +37,7 @@
   (let [uuid (-> entity
                  (.getUniqueId)
                  (.toString))]
-    (do (db/assoc-in :lambda-mobs [(keyword uuid)] (:id mob))
+    (do (db-assoc-in :lambda-mobs [(keyword uuid)] (:id mob))
         entity)))
 
 (defn unmark-lambda-mob
@@ -45,7 +45,7 @@
   (let [uuid (-> entity
                  (.getUniqueId)
                  (.toString))]
-    (do (db/dissoc :lambda-mobs (keyword uuid))
+    (do (db-dissoc :lambda-mobs (keyword uuid))
         entity)))
 
 (defn spawn-mob
@@ -73,7 +73,7 @@
 
 (defn process-entity-death
   [event ^Living entity]
-  (when-let [id (db/get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
+  (when-let [id (db-get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
     (let [mob (get-mob id)]
       (do (mark-as-recently-dead id entity)
           (unmark-lambda-mob entity)))))
@@ -95,7 +95,7 @@
 
 (defn process-entity-damage
   [^DamageEntityEvent event, ^Entity entity]
-  (when-let [id (db/get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
+  (when-let [id (db-get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
     (let [mob              (get-mob id)
           raw-event        (:event event)
           base-damage      (:base-damage event)
