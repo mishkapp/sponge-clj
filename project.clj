@@ -15,7 +15,7 @@
   :profiles {
              :dev      {:dependencies [[org.clojure/clojure "1.8.0"]]}
              :provided {:dependencies [[org.spongepowered/spongeapi "7.0.0"]]}
-             :uberjar  {:aot [sponge-clj.core]}
+             :uberjar  {:aot :all}
              }
   :git-version {
                 :version-file "resources/assets/spongeclj/version.edn"
