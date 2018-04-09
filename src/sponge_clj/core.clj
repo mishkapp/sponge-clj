@@ -57,12 +57,11 @@
                            :description "Clojure in Minecraft!"
                            :url         "http://mishkapp.com"
                            :authors     ["mishkapp"]
-                           :version     "%VERSION%"
                            }}
-sponge_clj.Core
+           sponge_clj.Core
            :prefix "main-"
            :methods [[^{Listener {}}
-onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] void]
+           onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] void]
                      ;Injects
                      [^{Inject {}}
                      setLogger [org.slf4j.Logger] void]]

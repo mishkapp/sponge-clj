@@ -1,5 +1,5 @@
 language: clojure
-script: lein uberjar
+script: lein uberjar!
 deploy:
   provider: releases
   skip_cleanup: true
