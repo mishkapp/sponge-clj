@@ -10,8 +10,8 @@ deploy:
       branch: master
       tags: true
   - provider: script
-      skip_cleanup: true
-      script: lein deploy release
-      on:
-        branch: master
-        tags: true
+    skip_cleanup: true
+    script: lein deploy release
+    on:
+      branch: master
+      tags: true
