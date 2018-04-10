@@ -1,11 +1,14 @@
-(defproject sponge-clj "_"
+(defproject com.mishkapp/sponge-clj "_"
   :description "Clojure DSL for Sponge"
   :plugins [[me.arrdem/lein-git-version "2.0.8"]
             [lein-exec "0.3.7"]]
   :url "http://mishkapp.com"
   :license {:name "GNU General Public License v3.0"
             :url  "https://www.gnu.org/licenses/gpl-3.0.ru.html"}
-  :repositories [["sponge" "https://repo.spongepowered.org/maven"]]
+  :repositories [["sponge" "https://repo.spongepowered.org/maven"]
+                 ["release" {:url "https://repo.clojars.org"
+                              :username :env/clojars_username
+                              :password :env/clojars_password}]]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [io.replikativ/konserve "0.4.11"]

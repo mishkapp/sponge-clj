@@ -1,11 +1,17 @@
 language: clojure
 script: lein uberjar!
 deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key: $GITHUB_OAUTH_TOKEN
-  file_glob: true
-  file: "./target/*.jar"
-  on:
-    branch: master
-    tags: true
+  - provider: releases
+    skip_cleanup: true
+    api_key: $GITHUB_OAUTH_TOKEN
+    file_glob: true
+    file: "./target/*.jar"
+    on:
+      branch: master
+      tags: true
+  - provider: script
+      skip_cleanup: true
+      script: lein deploy release
+      on:
+        branch: master
+        tags: true
