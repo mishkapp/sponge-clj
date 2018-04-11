@@ -1,5 +1,8 @@
 language: clojure
 script: lein uberjar!
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_a1fa50160860_key -iv $encrypted_a1fa50160860_iv -in signkey.asc.enc -out signkey.asc -d
+  - gpg --fast-import signkey.asc
 deploy:
   - provider: releases
     skip_cleanup: true
