@@ -9,8 +9,8 @@
                  ["release" {:url "https://repo.clojars.org"
                               :username :env/clojars_username
                               :password :env/clojars_password}]]
-  :signing {:gpg-key "mishkapp@gmail.com"
-            :gpg-passphrase :env/gpg_passphrase}
+  ;:signing {:gpg-key "mishkapp@gmail.com"
+  ;          :gpg-passphrase :env/gpg_passphrase}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [io.replikativ/konserve "0.4.11"]
