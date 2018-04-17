@@ -7,8 +7,9 @@
             :url  "https://www.gnu.org/licenses/gpl-3.0.ru.html"}
   :repositories [["sponge" "https://repo.spongepowered.org/maven"]
                  ["release" {:url "https://repo.clojars.org"
-                              :username :env/clojars_username
-                              :password :env/clojars_password}]]
+                             :username :env/clojars_username
+                             :password :env/clojars_password
+                             :sign-releases false}]]
   ;:signing {:gpg-key "mishkapp@gmail.com"
   ;          :gpg-passphrase :env/gpg_passphrase}
   :dependencies [[org.clojure/clojure "1.8.0"]
