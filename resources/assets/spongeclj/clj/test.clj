@@ -17,11 +17,8 @@
     [sponge-clj.text]
     [clojure.reflect]
     )
-  (:import (org.spongepowered.api.event.entity MoveEntityEvent ConstructEntityEvent SpawnEntityEvent)
-           (org.spongepowered.api.entity.living.player Player)
-           (org.spongepowered.api.event.network ClientConnectionEvent$Join)
-           (org.spongepowered.api.command CommandSource)
-           (org.spongepowered.api.command.args CommandContext)))
+  (:import (org.spongepowered.api.entity.living.player Player)
+           (org.spongepowered.api.command CommandSource)))
 
 (defn sword-use
   "Executed on sword use"
@@ -121,7 +118,7 @@
 
 (def-trigger
   :id :my-block
-  :event-type MoveEntityEvent
+  :event-type :walk
   :predicate (fn [event]
                (let [location-to (:location-to event)
                      entity      (:entity event)]
@@ -131,17 +128,4 @@
             (let [entity (:entity event)]
               (send-message entity "Hue hue")))
   :delay (seconds 1)
-  )
-
-(comment
-  (sponge-clj.sponge/>>sponge #(spawn-mob :skeleton-king {:world "world" :x 35 :y 64 :z 308}))
-
-  (register-listener SpawnEntityEvent (fn [event] (println (:event event))))
-
-  (register-listener ClientConnectionEvent$Join (fn [event]
-                                                  (let [^ClientConnectionEvent$Join eve (:event event)
-                                                        player                          (-> eve
-                                                                                            (.getCause)
-                                                                                            (.root))]
-                                                    (send-message player "Ho-hoho"))))
   )
