@@ -6,7 +6,8 @@
             [sponge-clj.commands :as cmd]
             [sponge-clj.triggers :as triggers]
             [clojure.java.io :as io]
-            [sponge-clj.database :as db])
+            [sponge-clj.database :as db]
+            [clojure.edn :as edn])
   (:import (org.spongepowered.api.event Listener)
            (org.spongepowered.api.plugin Plugin PluginContainer)
            (com.google.inject Inject)
@@ -26,6 +27,8 @@
     @plugin))
 
 (def ^:private ^Path private-config-dir (atom nil))
+
+(def ^:private config (atom {}))
 
 (def repl-handle (atom nil))
 
@@ -95,6 +98,14 @@
     :permission "spongeclj.reload"
     :description "Reload scripts"))
 
+(defn- init-config
+  []
+  (-> (get-plugin)
+      (.getAsset "config.edn")
+      (.get)
+      (.copyToDirectory @private-config-dir))
+  (reset! config (edn/read-string (slurp (str (.toString @private-config-dir) "/config.edn")))))
+
 (defn init-db
   []
   (let [db-dir-file (io/as-file db/db-dir)]
@@ -103,12 +114,14 @@
 
 (defn main-onServerStart
   [this event]
-  (start-repl "0.0.0.0" 40000)
-  (init-db)
-  (triggers/init)
   (reset! private-config-dir (-> (Sponge/getConfigManager)
                                  (.getPluginConfig (get-plugin))
                                  (.getDirectory)))
+  (init-config)
+  (cond (get-in @config [:repl :enabled?])
+        (start-repl (get-in @config [:repl :host]) (get-in @config [:repl :port])))
+  (init-db)
+  (triggers/init)
   (-> (get-plugin)
       (.getAsset "clj/test.clj")
       (.get)
