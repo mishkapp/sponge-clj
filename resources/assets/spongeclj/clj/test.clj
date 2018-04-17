@@ -16,9 +16,7 @@
     [sponge-clj.commands]
     [sponge-clj.text]
     [clojure.reflect]
-    )
-  (:import (org.spongepowered.api.entity.living.player Player)
-           (org.spongepowered.api.command CommandSource)))
+    ))
 
 (defn sword-use
   "Executed on sword use"
@@ -98,7 +96,7 @@
              :description "Just a child command A"))
 
 (def cmd-b (cmd
-             :executor (fn [^CommandSource src, args]
+             :executor (fn [src, args]
                          (do (println args)
                              (send-message src "cmd-b")))
              :permission "testcmd.exec.child.b"
@@ -122,7 +120,7 @@
   :predicate (fn [event]
                (let [location-to (:location-to event)
                      entity      (:entity event)]
-                 (and (instance? Player entity)
+                 (and (player? entity)
                       (block-location-equals? location-to (location "world" 35 65 310)))))
   :action (fn [event]
             (let [entity (:entity event)]

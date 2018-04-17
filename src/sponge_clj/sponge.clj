@@ -1,7 +1,8 @@
 (ns sponge-clj.sponge
   (:import (org.spongepowered.api Sponge)
            (clojure.lang IFn)
-           (org.spongepowered.api.plugin PluginContainer)))
+           (org.spongepowered.api.plugin PluginContainer)
+           (org.spongepowered.api.entity.living.player Player)))
 
 (def ^:private ^PluginContainer plugin (atom nil))
 
@@ -12,6 +13,10 @@
                        (.getPlugin "spongeclj")
                        (.get)))
     @plugin))
+
+(defn player?
+  [source]
+  (instance? Player source))
 
 (defn get-catalog-type
   "Returns catalog type from sponge registry or nil if it is absent"
