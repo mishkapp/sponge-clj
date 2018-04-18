@@ -37,12 +37,12 @@
    :white        TextColors/WHITE
    :yellow       TextColors/YELLOW
    :reset        TextColors/RESET
-   }
+   })
 
-  (defn text-color
-    "Creates a color for formatting"
-    [color]
-    (get colors color TextColors/WHITE)))
+(defn text-color
+  "Creates a color for formatting"
+  [color]
+  (get colors color TextColors/WHITE))
 
 (def styles
   {:none          TextStyles/NONE
