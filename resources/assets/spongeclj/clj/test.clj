@@ -15,6 +15,7 @@
     [sponge-clj.enchantments]
     [sponge-clj.commands]
     [sponge-clj.text]
+    [sponge-clj.menu]
     [clojure.reflect]
     ))
 
@@ -127,3 +128,24 @@
               (send-message entity "Hue hue")))
   :delay (seconds 1)
   )
+
+(def test-menu-entry
+  (menu-entry
+    :item (item-stack "minecraft:apple")
+    :permission "testmenu.test"
+    :action #(send-message % "Huuuuray!")))
+
+(def-menu main-menu
+  :title (text (text-color :gold) "Test menu")
+  :lines 6
+  :content {
+            [2 2] test-menu-entry
+            [2 3] test-menu-entry
+            [2 4] test-menu-entry
+            }
+  )
+
+(def-cmd
+  :aliases ["testmenu"]
+  :permission "testmenu.open"
+  :executor (fn [src args] (open-menu main-menu src)))

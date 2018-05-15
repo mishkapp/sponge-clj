@@ -9,3 +9,8 @@
       (.getInventory)
       (.offer is))
   player)
+
+(defn has-permission
+  [^Player player perm]
+  (-> player
+      (.hasPermission perm)))
