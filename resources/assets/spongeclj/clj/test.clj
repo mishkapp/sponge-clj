@@ -136,7 +136,7 @@
     :action #(send-message % "Huuuuray!")))
 
 (def-menu main-menu
-  :title (text (text-color :gold) "Test menu")
+  :title (text :gold "Test menu")
   :lines 6
   :content {
             [2 2] test-menu-entry

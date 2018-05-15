@@ -52,6 +52,7 @@
    :underline     TextStyles/UNDERLINE
    :italic        TextStyles/ITALIC
    :reset         TextStyles/RESET
+   :newline       Text/NEW_LINE
    })
 
 (defn text-style
@@ -102,7 +103,12 @@
   [str]
   (TextActions/insertText str))
 
+(defn- prepare-keyword
+  [kw]
+  (get colors kw (get styles kw (str kw))))
+
 (defn text
   "Creates text"
   [& xs]
-  (Text/of (into-array Object xs)))
+  (let [xs (map #(if (keyword %) (prepare-keyword %) %) xs)]
+    (Text/of (into-array Object xs))))
