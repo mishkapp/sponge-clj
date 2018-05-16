@@ -3,7 +3,8 @@
             [sponge-clj.text :as t]
             [sponge-clj.cause :as c]
             [sponge-clj.player :as p]
-            [sponge-clj.util :as u])
+            [sponge-clj.util :as u]
+            [sponge-clj.events :as e])
   (:import (org.spongepowered.api.item.inventory Inventory InventoryArchetypes Slot InventoryProperty)
            (org.spongepowered.api.item.inventory.property InventoryTitle InventoryDimension InventoryCapacity SlotPos SlotIndex)
            (org.spongepowered.api.event.item.inventory ClickInventoryEvent)
@@ -21,25 +22,25 @@
         inv (-> (Inventory/builder)
                 (.of (InventoryArchetypes/MENU_GRID))
                 (.property (InventoryTitle. (:title menu)))
-                (.listener ClickInventoryEvent (reify Consumer
-                                                 (accept [this event]
-                                                   (do (-> event
-                                                           (.setCancelled true))
-                                                       (let [index (-> event
-                                                                       (.getTransactions)
-                                                                       (.get 0)
-                                                                       (.getSlot)
-                                                                       (.getProperty SlotIndex "slotindex")
-                                                                       (.get)
-                                                                       (.getValue))
-                                                             entry (get @slots-actions index)
-                                                             player (c/first-in (-> event
-                                                                                    (.getCause))
-                                                                                Player)]
-                                                         (if (p/has-permission player (:permission entry))
-                                                             (apply (:action entry) [player])
-                                                             (u/send-message player "You don't have enough permission")))))))
-                (.property (InventoryDimension/PROPERTY_NAME) (InventoryDimension. (:lines menu) 9))
+                (.listener ClickInventoryEvent
+                           (reify Consumer
+                             (accept [this event]
+                               (do (-> event
+                                       (.setCancelled true))
+                                   (let [event (e/destructure-event event)
+                                         index (-> (:event event)
+                                                   (.getTransactions)
+                                                   (.get 0)
+                                                   (.getSlot)
+                                                   (.getProperty SlotIndex "slotindex")
+                                                   (.get)
+                                                   (.getValue))
+                                         entry (get @slots-actions index)
+                                         player (c/first-in (:cause event) Player)]
+                                     (if (p/has-permission player (:permission entry))
+                                       (apply (:action entry) [player])
+                                       (u/send-message player "You don't have enough permission")))))))
+                (.property (InventoryDimension/PROPERTY_NAME) (InventoryDimension. (:rows menu) 9))
                 (.build (sponge-clj.core/get-plugin)))
         _ (reset! slots (iterator-seq (-> inv
                                           (.slots)

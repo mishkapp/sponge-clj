@@ -137,7 +137,7 @@
 
 (def-menu main-menu
   :title (text :gold "Test menu")
-  :lines 6
+  :rows 6
   :content {
             [2 2] test-menu-entry
             [2 3] test-menu-entry
