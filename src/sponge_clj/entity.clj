@@ -18,7 +18,7 @@
   [^Entity entity, display-name]
   {:pre [(some? entity)
          (some? display-name)]}
-  (.offer entity Keys/DISPLAY_NAME (to-text display-name))
+  (.offer entity Keys/DISPLAY_NAME (text display-name))
   entity)
 
 (defn set-max-health

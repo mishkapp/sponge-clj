@@ -75,7 +75,7 @@
 (defn eval-cmd
   [^CommandSource src args]
   (let [expr (first (:expression args))]
-    (.sendMessage src ^Text (text/to-text (str (eval (read-string expr)))))))
+    (.sendMessage src ^Text (text/text (str (eval (read-string expr)))))))
 
 (defn reload-cmd
   [^CommandSource src args]

@@ -1,14 +1,14 @@
 (ns sponge-clj.util
   (:use [sponge-clj.text])
-  (:import (org.spongepowered.api.entity.living.player Player)
-           (java.io IOException)
-           (java.net ServerSocket InetSocketAddress)))
+  (:import (java.io IOException)
+           (java.net ServerSocket InetSocketAddress)
+           (org.spongepowered.api.text.channel MessageReceiver)))
 
 (defn send-message
-  "Sends message to player"
-  [player message]
-  (if (instance? Player player)
-    (.sendMessage player (to-text message))))
+  "Sends message to receiver"
+  [receiver message]
+  (if (instance? MessageReceiver receiver)
+    (.sendMessage receiver (text message))))
 
 (defmacro when-let*
   "Multiple binding version of when-let"

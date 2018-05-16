@@ -1,6 +1,6 @@
 (ns sponge-clj.items
   (:require [sponge-clj.sponge :as sp]
-            [sponge-clj.text :as text]
+            [sponge-clj.text :as t]
             [sponge-clj.world :as w]
             [sponge-clj.entity :as e])
   (:import (org.spongepowered.api.item ItemType)
@@ -28,14 +28,14 @@
   [^ItemStack is display-name]
   {:pre [(some? is)
          (some? display-name)]}
-  (.offer is Keys/DISPLAY_NAME (text/to-text display-name))
+  (.offer is Keys/DISPLAY_NAME (t/text display-name))
   is)
 
 (defn add-lore
   [^ItemStack is lore]
   {:pre [(some? is)
          (some? lore)]}
-  (.offer is Keys/ITEM_LORE (map text/to-text lore))
+  (.offer is Keys/ITEM_LORE (map t/text lore))
   is)
 
 (defn add-item-stack
