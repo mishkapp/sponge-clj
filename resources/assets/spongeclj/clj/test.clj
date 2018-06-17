@@ -45,7 +45,7 @@
 (def-mob
   :id :skeleton-king
   :entity-type "minecraft:skeleton"
-  :display-name "&6&lSkeleton king"
+  :display-name (text :red :bold "Skeleton king")
   :health 4
   :damage 4                                                 ;??
   :speed 0.2
