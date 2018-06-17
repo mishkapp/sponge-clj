@@ -72,6 +72,17 @@
                      setLogger [org.slf4j.Logger] void]]
            :constructors {[] []})
 
+(defn- load-ns
+  []
+  (let [files (file-seq (-> @private-config-dir
+                            (.resolve "clj")
+                            (.toFile)))
+        files (filter #(re-matches #"(.)*\.clj" (str %)) files)]
+    (doseq [f files]
+      (do
+        (logger/info (str "Loading file: " f))
+        (load-file (str f))))))
+
 (defn eval-cmd
   [^CommandSource src args]
   (let [expr (first (:expression args))]
@@ -79,9 +90,7 @@
 
 (defn reload-cmd
   [^CommandSource src args]
-  (load-file (-> @private-config-dir
-                 (.resolve "test.clj")
-                 (.toString))))
+  (load-ns))
 
 (defn init-commands
   []
@@ -125,10 +134,9 @@
   (-> (get-plugin)
       (.getAsset "clj/test.clj")
       (.get)
-      (.copyToDirectory @private-config-dir))
-  (load-file (-> @private-config-dir
-                 (.resolve "test.clj")
-                 (.toString)))
+      (.copyToDirectory (-> @private-config-dir
+                            (.resolve "clj"))))
+  (load-ns)
   (init-commands)
   (logger/info "Sponge-clj enabled!"))
 
