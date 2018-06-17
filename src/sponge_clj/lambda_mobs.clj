@@ -6,7 +6,8 @@
             [sponge-clj.triggers :as t]
             [clojure.tools.trace :refer :all]
             [sponge-clj.random :as rnd]
-            [sponge-clj.cause :as c])
+            [sponge-clj.cause :as c]
+            [sponge-clj.sponge :as sp])
   (:import (org.spongepowered.api.world World)
            (org.spongepowered.api.entity Entity)
            (org.spongepowered.api.entity.living Living)
@@ -173,7 +174,8 @@
       (when-let [res-spawn (first spawns)]
         (do (cond (= :replace (:type res-spawn)) (-> entity
                                                      (.remove)))
-            (spawn-mob (:mob res-spawn) location))))))
+            (sp/>>sponge #(spawn-mob (:mob res-spawn) location))
+            )))))
 
 (defn- process-entities-for-spawn
   [event]
