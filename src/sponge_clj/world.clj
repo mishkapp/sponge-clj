@@ -1,7 +1,8 @@
 (ns sponge-clj.world
+  (:use [sponge-clj.sponge])
   (:import (org.spongepowered.api.world Location World)
            (org.spongepowered.api Sponge)
-           (org.spongepowered.api.block BlockState)))
+           (org.spongepowered.api.block BlockState BlockType BlockTypes)))
 
 (defn block-location-equals?
   [loc1 loc2]
@@ -50,7 +51,17 @@
   (-> (get-world loc)
       (.getBiome (:x loc) (:y loc) (:z loc))))
 
+(defn block-by-id
+  (^BlockState [id]
+   (.getDefaultState (get-catalog-type BlockType id))))
+
 (defn get-block
   (^BlockState [loc]
    (-> (get-world loc)
        (.getBlock (:x loc) (:y loc) (:z loc)))))
+
+(defn set-block
+  [loc block]
+  (let [block (if (string? block) (block-by-id block) block)]
+    (-> (as-sponge-location loc)
+        (.setBlock block))))
