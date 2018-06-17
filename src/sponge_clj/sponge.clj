@@ -27,12 +27,19 @@
       (.orElse nil)))
 
 (defn >sponge
-  [^IFn fn]
-  (-> (Sponge/getScheduler)
-      (.createTaskBuilder)
-      (.async)
-      (.execute fn)
-      (.submit (get-plugin'))))
+  ([^IFn fn]
+   (-> (Sponge/getScheduler)
+       (.createTaskBuilder)
+       (.async)
+       (.execute fn)
+       (.submit (get-plugin'))))
+  ([^IFn fn delay]
+   (-> (Sponge/getScheduler)
+       (.createTaskBuilder)
+       (.async)
+       (.delayTicks delay)
+       (.execute fn)
+       (.submit (get-plugin')))))
 
 (defn >>sponge
   [^IFn fn]
