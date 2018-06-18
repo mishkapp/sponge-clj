@@ -2,7 +2,8 @@
   (:use [sponge-clj.sponge])
   (:import (org.spongepowered.api.world Location World)
            (org.spongepowered.api Sponge)
-           (org.spongepowered.api.block BlockState BlockType BlockTypes)))
+           (org.spongepowered.api.block BlockState BlockType BlockTypes)
+           (com.flowpowered.math.vector Vector3d)))
 
 (defn block-location-equals?
   [loc1 loc2]
@@ -65,3 +66,7 @@
   (let [block (if (string? block) (block-by-id block) block)]
     (-> (as-sponge-location loc)
         (.setBlock block))))
+
+(defn loc->vec3d
+  [loc]
+  (Vector3d. ^Double (:x loc) ^Double (:y loc) ^Double (:z loc)))

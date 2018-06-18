@@ -16,8 +16,10 @@
     [sponge-clj.commands]
     [sponge-clj.text]
     [sponge-clj.menu]
+    [sponge-clj.particles]
     [clojure.reflect]
-    ))
+    )
+  (:import (org.spongepowered.api.entity Entity)))
 
 (defn sword-use
   "Executed on sword use"
@@ -87,6 +89,16 @@
   :type :replace
   ;raw predicate that handles destructured ConstructEntityEvent$Pre and decides can mob be spawned or not
   ;:raw-predicate predicate-fn
+  :skills [
+           {
+            :trigger :tick
+            :target-fn (fn [src]
+                         )
+            :skill-fn (fn [src targets args]
+                        )
+            :cooldown (ticks 20)
+            }
+           ]
   )
 
 (def cmd-a (cmd
@@ -124,8 +136,10 @@
                  (and (player? entity)
                       (block-location-equals? location-to (location "world" 35 65 310)))))
   :action (fn [event]
-            (let [entity (:entity event)]
-              (send-message entity "Hue hue")))
+            (let [^Entity entity (:entity event)
+                  loc (location (.getLocation entity))
+                  pe (particle :redstone-dust {:color (color 0 255 0)})]
+              (spawn-particle pe loc)))
   :delay (seconds 1)
   )
 
