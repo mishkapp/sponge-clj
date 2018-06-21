@@ -2,8 +2,9 @@
   (:require [sponge-clj.sponge :as sp]
             [sponge-clj.text :as t]
             [sponge-clj.world :as w]
-            [sponge-clj.entity :as e])
-  (:import (org.spongepowered.api.item ItemType)
+            [sponge-clj.entity :as e]
+            [sponge-clj.logger :as log])
+  (:import (org.spongepowered.api.item ItemType ItemTypes)
            (org.spongepowered.api.item.inventory ItemStack)
            (org.spongepowered.api.data.key Keys)
            (org.spongepowered.api.data DataQuery)
@@ -12,7 +13,12 @@
 (defn item-type
   "Returns ItemType for give id, or nil if there is no item with this id"
   [id]
-  (sp/get-catalog-type ItemType id))
+  (let [type (sp/get-catalog-type ItemType id)]
+    (if (nil? type)
+      (do (log/warn (str "Bad material id: " id))
+          ItemTypes/AIR)
+      type))
+  )
 
 (defn item-stack
   "Returns item stack for given id and amount"
@@ -45,10 +51,12 @@
 
 (defn spawn-item
   [loc ^ItemStack is]
-  (-> (w/as-sponge-location loc)
-      (.createEntity EntityTypes/ITEM)
-      (add-item-stack is)
-      (e/spawn (w/get-world loc))))
+  (let [amount (-> is
+                   (.getQuantity))]
+    (cond (> amount 0) (-> (w/as-sponge-location loc)
+                           (.createEntity EntityTypes/ITEM)
+                           (add-item-stack is)
+                           (e/spawn (w/get-world loc))))))
 
 (defn add-custom-data
   [^ItemStack is path value]
