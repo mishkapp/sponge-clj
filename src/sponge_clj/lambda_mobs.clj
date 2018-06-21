@@ -10,11 +10,12 @@
             [sponge-clj.sponge :as sp])
   (:import (org.spongepowered.api.world World)
            (org.spongepowered.api.entity Entity)
-           (org.spongepowered.api.entity.living Living)
+           (org.spongepowered.api.entity.living Living ArmorStand)
            (org.spongepowered.api.entity.living.player Player)
-           (org.spongepowered.api.event.entity DestructEntityEvent$Death DamageEntityEvent SpawnEntityEvent DestructEntityEvent MoveEntityEvent)
+           (org.spongepowered.api.event.entity DestructEntityEvent$Death DamageEntityEvent SpawnEntityEvent DestructEntityEvent MoveEntityEvent TargetEntityEvent)
            (org.spongepowered.api.event.item.inventory DropItemEvent$Destruct)
-           (org.spongepowered.api.event.cause EventContextKeys)))
+           (org.spongepowered.api.event.cause EventContextKeys)
+           (org.spongepowered.api.entity.living.monster Skeleton)))
 
 (def ^:private mobs (atom {}))
 
@@ -59,7 +60,7 @@
      (cond-> (w/as-sponge-location loc)
              true (.createEntity mob-type)
              true (mark-lambda-mob mob)
-             true (e/set-persistent true)
+             (contains? mob :persistent) (e/set-persistent (:persistent mob))
              (contains? mob :display-name) (e/set-display-name (eval (:display-name mob)))
              (contains? mob :health) (e/set-max-health (eval (:health mob)))
              (contains? mob :speed) (e/set-speed (eval (:speed mob)))
@@ -241,4 +242,10 @@
   :delay 0
   )
 
+;(t/def-trigger
+;  :id :lambda-mob-ticker
+;  :event-type TargetEntityEvent
+;  :predicate #(isa? Skeleton (:entity %))
+;  :action #(println (:entity %))
+;  :delay 0)
 ;todo: remove entity from registry when server despawn it (not death)
