@@ -3,11 +3,12 @@
             [sponge-clj.text :as t]
             [sponge-clj.world :as w]
             [sponge-clj.entity :as e]
-            [sponge-clj.logger :as log])
+            [sponge-clj.logger :as log]
+            [sponge-clj.keys :as k])
   (:import (org.spongepowered.api.item ItemType ItemTypes)
            (org.spongepowered.api.item.inventory ItemStack)
            (org.spongepowered.api.data.key Keys)
-           (org.spongepowered.api.data DataQuery)
+           (org.spongepowered.api.data DataQuery DataContainer)
            (org.spongepowered.api.entity EntityTypes Item)))
 
 (defn item-type
@@ -20,15 +21,36 @@
       type))
   )
 
+(defn- apply-raw-data
+  [^ItemStack is raw-data]
+  (let [^DataContainer dc (-> is
+                           (.toContainer))
+        _ (doseq [re raw-data]
+            (-> dc
+                (.set (DataQuery/of \. (key re)) (val re))))]
+    (-> (ItemStack/builder)
+        (.fromContainer dc)
+        (.build))))
+
+(defn- apply-opts
+  [^ItemStack is opts]
+  (let [raw-data (get opts :raw-data {})
+        opts (dissoc opts :raw-data)]
+    (do (doseq [opt opts]
+          (k/apply-key is (key opt) (val opt)))
+        (apply-raw-data is raw-data))))
+
 (defn item-stack
   "Returns item stack for given id and amount"
   ([id] (item-stack id 1))
-  ([id amount]
+  ([id amount] (item-stack id amount {}))
+  ([id amount opts]
    (when-let [item-type (item-type id)]
-     (-> (ItemStack/builder)
-         (.itemType item-type)
-         (.quantity amount)
-         (.build)))))
+     (let [is (-> (ItemStack/builder)
+                  (.itemType item-type)
+                  (.quantity amount)
+                  (.build))]
+       (apply-opts is opts)))))
 
 (defn add-display-name
   [^ItemStack is display-name]
