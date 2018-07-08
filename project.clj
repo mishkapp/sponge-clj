@@ -16,12 +16,20 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [io.replikativ/konserve "0.4.11"]
+                 [io.replikativ/konserve-carmine "0.1.1"]
                  [org.clojure/tools.trace "0.7.9"]
                  [org.clojure/tools.nrepl "0.2.3"]
                  [org.clojure/clojure-contrib "1.2.0"]
-                 [org.spongepowered/spongeapi "7.0.0"]]
+                 [com.cemerick/pomegranate "1.0.0"]]
   :profiles {
-             :dev      {:dependencies [[org.clojure/clojure "1.8.0"]]}
+             :dev      {:dependencies [[org.clojure/clojure "1.8.0"]
+                                       [org.clojure/data.json "0.2.6"]
+                                       [io.replikativ/konserve "0.4.11"]
+                                       [io.replikativ/konserve-carmine "0.1.1"]
+                                       [org.clojure/tools.trace "0.7.9"]
+                                       [org.clojure/tools.nrepl "0.2.3"]
+                                       [org.clojure/clojure-contrib "1.2.0"]
+                                       [com.cemerick/pomegranate "1.0.0"]]}
              :provided {:dependencies [[org.spongepowered/spongeapi "7.0.0"]]}
              :uberjar  {:aot :all}
              }

@@ -49,3 +49,8 @@
       (.execute fn)
       (.submit (get-plugin'))))
 
+(defn process-command
+  [cmd]
+  (-> (Sponge/getCommandManager)
+      (.process (.getConsole (Sponge/getServer)) cmd)))
+
