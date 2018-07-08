@@ -173,8 +173,11 @@
           spawns      (sort-by :priority spawns)
           spawns      (filter #(rnd/chance (:chance %)) spawns)]
       (when-let [res-spawn (first spawns)]
-        (do (cond (= :replace (:type res-spawn)) (-> entity
-                                                     (.remove)))
+        (do
+          (cond (= :replace (:type res-spawn)) (do
+                                                 (.setCancelled (:event event) true)
+                                                 (-> entity
+                                                       (.remove))))
             (sp/>>sponge #(spawn-mob (:mob res-spawn) location))
             )))))
 
