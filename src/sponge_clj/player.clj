@@ -34,10 +34,12 @@
 (defn get-player-by-name
   [name]
   (-> (Sponge/getServer)
-      (.getPlayer ^String name)))
+      (.getPlayer ^String name)
+      (.orElse nil)))
 
 (defn get-player-by-uuid
   [uuid]
   (let [uuid (if (isa? UUID uuid) uuid (UUID/fromString (str uuid)))]
     (-> (Sponge/getServer)
-        (.getPlayer ^UUID uuid))))
+        (.getPlayer ^UUID uuid)
+        (.orElse nil))))
