@@ -51,6 +51,7 @@
 
 (defn process-command
   [cmd]
-  (-> (Sponge/getCommandManager)
-      (.process (.getConsole (Sponge/getServer)) cmd)))
+  (>>sponge
+    #(-> (Sponge/getCommandManager)
+        (.process (.getConsole (Sponge/getServer)) cmd))))
 
