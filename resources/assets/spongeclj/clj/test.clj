@@ -16,9 +16,7 @@
     [sponge-clj.commands]
     [sponge-clj.text]
     [sponge-clj.menu]
-    [sponge-clj.particles]
-    [clojure.reflect]
-    )
+    [sponge-clj.particles])
   (:import (org.spongepowered.api.entity Entity)))
 
 (defn sword-use

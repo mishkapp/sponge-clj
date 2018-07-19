@@ -41,7 +41,7 @@
                                        (apply (:action entry) [player])
                                        (u/send-message player "You don't have enough permission")))))))
                 (.property (InventoryDimension/PROPERTY_NAME) (InventoryDimension. (:rows menu) 9))
-                (.build (sponge-clj.core/get-plugin)))
+                (.build (sponge-clj.sponge/get-plugin')))
         _ (reset! slots (iterator-seq (-> inv
                                           (.slots)
                                           (.iterator))))

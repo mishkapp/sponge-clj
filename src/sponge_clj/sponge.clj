@@ -14,6 +14,12 @@
                        (.get)))
     @plugin))
 
+(defn get-private-config-dir
+  []
+  (-> (Sponge/getConfigManager)
+      (.getPluginConfig (get-plugin'))
+      (.getDirectory)))
+
 (defn player?
   [source]
   (instance? Player source))

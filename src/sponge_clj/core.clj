@@ -7,7 +7,8 @@
             [sponge-clj.triggers :as triggers]
             [clojure.java.io :as io]
             [sponge-clj.database :as db]
-            [clojure.edn :as edn])
+            [clojure.edn :as edn]
+            [sponge-clj.script :as s])
   (:import (org.spongepowered.api.event Listener)
            (org.spongepowered.api.plugin Plugin PluginContainer)
            (com.google.inject Inject)
@@ -80,7 +81,7 @@
         files (filter #(re-matches #"(.)*\.clj" (str %)) files)]
     (doseq [f files]
       (do
-        (logger/info (str "Loading file: " f))
+        (logger/info (str "Loading ns file: " f))
         (load-file (str f))))))
 
 (defn eval-cmd
@@ -88,9 +89,17 @@
   (let [expr (first (:expression args))]
     (.sendMessage src ^Text (text/text (str (eval (read-string expr)))))))
 
-(defn reload-cmd
-  [^CommandSource src args]
-  (load-ns))
+(def reload-ns-cmd
+  (cmd/cmd
+    :description "Reload all files from clj dir"
+    :executor (fn [src args] (load-ns))
+    ))
+
+(def reload-scripts-cmd
+  (cmd/cmd
+    :description "Reload all files from scripts dir"
+    :executor (fn [src args] (s/load-scripts))))
+
 
 (defn init-commands
   []
@@ -103,7 +112,10 @@
 
   (cmd/def-cmd
     :aliases ["reload"]
-    :executor reload-cmd
+    :children {
+               ["ns", "namespace"] reload-ns-cmd
+               ["scripts"]         reload-scripts-cmd
+               }
     :permission "spongeclj.reload"
     :description "Reload scripts"))
 
@@ -137,6 +149,12 @@
       (.copyToDirectory (-> @private-config-dir
                             (.resolve "clj"))))
   (load-ns)
+  (-> (get-plugin)
+      (.getAsset "scripts/test.clj")
+      (.get)
+      (.copyToDirectory (-> @private-config-dir
+                            (.resolve "scripts"))))
+  (s/load-scripts)
   (init-commands)
   (logger/info "Sponge-clj enabled!"))
 
