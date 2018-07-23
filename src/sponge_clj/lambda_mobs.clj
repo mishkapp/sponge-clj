@@ -9,15 +9,12 @@
             [sponge-clj.sponge :as sp])
   (:import (org.spongepowered.api.world World)
            (org.spongepowered.api.entity Entity)
-           (org.spongepowered.api.entity.living Living)
-           (org.spongepowered.api.event.entity DestructEntityEvent$Death DamageEntityEvent SpawnEntityEvent DestructEntityEvent MoveEntityEvent TargetEntityEvent)
+           (org.spongepowered.api.event.entity DamageEntityEvent SpawnEntityEvent)
            (org.spongepowered.api.event.item.inventory DropItemEvent$Destruct)
            (org.spongepowered.api.event.cause EventContextKeys)
            (sponge_clj LambdaMobData)))
 
 (def ^:private mobs (atom {}))
-
-(def ^:private recently-dead (atom {}))
 
 (def ^:private spawns (atom {}))
 
@@ -32,6 +29,14 @@
     (get @mobs key)
     nil))
 
+(defn lambda-mob?
+  [^Entity entity]
+  (if (nil? entity)
+    false
+    (-> entity
+        (.get ^Class LambdaMobData)
+        (.isPresent))))
+
 (defn mark-lambda-mob
   [^Entity entity mob]
   (.offer entity (.get (.getOrCreate entity LambdaMobData)))
@@ -42,12 +47,6 @@
   [^Entity entity]
   (.remove entity LambdaMobData)
   entity)
-
-(defn lambda-mob?
-  [^Entity entity]
-  (-> entity
-      (.get ^Class LambdaMobData)
-      (.isPresent)))
 
 (defn lambda-mob-type
   [^Entity entity]
@@ -74,20 +73,10 @@
              true (e/spawn world)
              ))))
 
-(defn mark-as-recently-dead
-  [id ^Entity entity]
-  (swap! recently-dead assoc (keyword (str (.getUniqueId entity))) id))
-
-(defn process-entity-death
-  [event ^Living entity]
-    (let [id (lambda-mob-type entity)]
-      (do (mark-as-recently-dead id entity)
-          (unmark-lambda-mob entity))))
-
 (defn process-items-drop
   [event]
   (when-let [entity (c/first-in (:cause event) Entity)]
-    (when-let [id (get @recently-dead (keyword (str (.getUniqueId entity))))]
+    (when-let [id (lambda-mob-type entity)]
       (let [mob   (get-mob id)
             loc   (e/get-loc entity)
             items (get mob :drop)]
@@ -95,8 +84,8 @@
           (doseq [it items]
             (when-let [item (eval it)]
               (i/spawn-item loc item)))
-          (swap! recently-dead dissoc id)
           (.setCancelled (:event event) true)
+          (unmark-lambda-mob entity)
           )))))
 
 (defn process-entity-damage
@@ -218,17 +207,9 @@
     (swap! spawns assoc id spawn)))
 
 (t/def-trigger
-  :id :lambda-mob-death
-  :event-type DestructEntityEvent$Death
-  :predicate #(lambda-mob? (:entity %))
-  :action #(process-entity-death % (:entity %))
-  :delay 0
-  )
-
-(t/def-trigger
   :id :lambda-mob-item-drop
   :event-type DropItemEvent$Destruct
-  :predicate #(lambda-mob? (:entity %))
+  :predicate #(lambda-mob? (c/first-in (:cause %) Entity))
   :action #(process-items-drop %)
   :delay 0
   )
@@ -244,7 +225,7 @@
 (t/def-trigger
   :id :lambda-mobs-spawn
   :event-type SpawnEntityEvent
-  :predicate #(lambda-mob? (:entity %))
+  :predicate #(not (lambda-mob? (:entity %)))
   :action #(process-entities-for-spawn %)
   :delay 0
   )
