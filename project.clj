@@ -13,6 +13,7 @@
                              :sign-releases false}]]
   ;:signing {:gpg-key "mishkapp@gmail.com"
   ;          :gpg-passphrase :env/gpg_passphrase}
+  :java-source-paths ["src-java"]
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [io.replikativ/konserve "0.4.11"]

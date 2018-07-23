@@ -15,7 +15,9 @@
            (java.nio.file Path)
            (org.spongepowered.api Sponge)
            (org.spongepowered.api.text Text)
-           (org.spongepowered.api.command CommandSource)))
+           (org.spongepowered.api.command CommandSource)
+           (org.spongepowered.api.data DataRegistration)
+           (sponge_clj LambdaMobData LambdaMobData$Immutable LambdaMobData$Builder)))
 
 (def ^:private ^PluginContainer plugin (atom nil))
 
@@ -67,7 +69,9 @@
            sponge_clj.Core
            :prefix "main-"
            :methods [[^{Listener {}}
-           onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] void]
+                     onServerStart [org.spongepowered.api.event.game.state.GameStartedServerEvent] void]
+                     [^{Listener {}}
+                     onRegister [org.spongepowered.api.event.game.state.GamePreInitializationEvent] void]
                      ;Injects
                      [^{Inject {}}
                      setLogger [org.slf4j.Logger] void]]
@@ -161,3 +165,15 @@
 (defn main-setLogger
   [this lg]
   (reset! logger/logger' lg))
+
+(defn main-onRegister
+  [this event]
+  (LambdaMobData/initKey)
+  (sponge-clj.keys/init-keys)
+  (-> (DataRegistration/builder)
+      (.dataName "Lambda mob id")
+      (.manipulatorId "lambda_mob_id")
+      (.dataClass LambdaMobData)
+      (.immutableClass LambdaMobData$Immutable)
+      (.builder (LambdaMobData$Builder.))
+      (.buildAndRegister (sponge-clj.sponge/get-plugin'))))

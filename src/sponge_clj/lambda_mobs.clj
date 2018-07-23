@@ -1,6 +1,5 @@
 (ns sponge-clj.lambda-mobs
   (:require [sponge-clj.entity :as e]
-            [sponge-clj.database :refer :all]
             [sponge-clj.world :as w]
             [sponge-clj.items :as i]
             [sponge-clj.triggers :as t]
@@ -10,12 +9,11 @@
             [sponge-clj.sponge :as sp])
   (:import (org.spongepowered.api.world World)
            (org.spongepowered.api.entity Entity)
-           (org.spongepowered.api.entity.living Living ArmorStand)
-           (org.spongepowered.api.entity.living.player Player)
+           (org.spongepowered.api.entity.living Living)
            (org.spongepowered.api.event.entity DestructEntityEvent$Death DamageEntityEvent SpawnEntityEvent DestructEntityEvent MoveEntityEvent TargetEntityEvent)
            (org.spongepowered.api.event.item.inventory DropItemEvent$Destruct)
            (org.spongepowered.api.event.cause EventContextKeys)
-           (org.spongepowered.api.entity.living.monster Skeleton)))
+           (sponge_clj LambdaMobData)))
 
 (def ^:private mobs (atom {}))
 
@@ -36,19 +34,26 @@
 
 (defn mark-lambda-mob
   [^Entity entity mob]
-  (let [uuid (-> entity
-                 (.getUniqueId)
-                 (.toString))]
-    (do (db-assoc-in :lambda-mobs [(keyword uuid)] (:id mob))
-        entity)))
+  (.offer entity (.get (.getOrCreate entity LambdaMobData)))
+  (.offer entity (:lambda-mob-id @sponge-clj.keys/sponge-keys) (:id mob))
+  entity)
 
 (defn unmark-lambda-mob
   [^Entity entity]
-  (let [uuid (-> entity
-                 (.getUniqueId)
-                 (.toString))]
-    (do (db-dissoc :lambda-mobs (keyword uuid))
-        entity)))
+  (.remove entity LambdaMobData)
+  entity)
+
+(defn lambda-mob?
+  [^Entity entity]
+  (-> entity
+      (.get ^Class LambdaMobData)
+      (.isPresent)))
+
+(defn lambda-mob-type
+  [^Entity entity]
+  (-> entity
+      (.get (:lambda-mob-id @sponge-clj.keys/sponge-keys))
+      (.orElse nil)))
 
 (defn spawn-mob
   (^Entity [id loc]
@@ -75,10 +80,9 @@
 
 (defn process-entity-death
   [event ^Living entity]
-  (when-let [id (db-get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
-    (let [mob (get-mob id)]
+    (let [id (lambda-mob-type entity)]
       (do (mark-as-recently-dead id entity)
-          (unmark-lambda-mob entity)))))
+          (unmark-lambda-mob entity))))
 
 (defn process-items-drop
   [event]
@@ -97,8 +101,7 @@
 
 (defn process-entity-damage
   [^DamageEntityEvent event, ^Entity entity]
-  (when-let [id (db-get-in :lambda-mobs [(keyword (str (.getUniqueId entity)))])]
-    (let [mob              (get-mob id)
+    (let [mob              (lambda-mob-type entity)
           raw-event        (:event event)
           base-damage      (:base-damage event)
           damage-type      (:damage-type event)
@@ -106,7 +109,7 @@
           new-damage       (if (contains? damage-modifiers damage-type)
                              (* (get damage-modifiers damage-type) base-damage)
                              base-damage)]
-      (.setBaseDamage raw-event new-damage))))
+      (.setBaseDamage raw-event new-damage)))
 
 (defn- cause?
   [cause spawn]
@@ -217,7 +220,7 @@
 (t/def-trigger
   :id :lambda-mob-death
   :event-type DestructEntityEvent$Death
-  :predicate #(not (isa? Player (:entity %)))
+  :predicate #(lambda-mob? (:entity %))
   :action #(process-entity-death % (:entity %))
   :delay 0
   )
@@ -225,6 +228,7 @@
 (t/def-trigger
   :id :lambda-mob-item-drop
   :event-type DropItemEvent$Destruct
+  :predicate #(lambda-mob? (:entity %))
   :action #(process-items-drop %)
   :delay 0
   )
@@ -232,7 +236,7 @@
 (t/def-trigger
   :id :lambda-mob-damage
   :event-type DamageEntityEvent
-  :predicate #(not (isa? Player (:entity %)))
+  :predicate #(lambda-mob? (:entity %))
   :action #(process-entity-damage % (:entity %))
   :delay 0
   )
@@ -240,7 +244,7 @@
 (t/def-trigger
   :id :lambda-mobs-spawn
   :event-type SpawnEntityEvent
-  :predicate #(not (isa? Player (:entity %)))
+  :predicate #(lambda-mob? (:entity %))
   :action #(process-entities-for-spawn %)
   :delay 0
   )
