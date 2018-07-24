@@ -54,13 +54,12 @@
       (.get (:lambda-mob-id @sponge-clj.keys/sponge-keys))
       (.orElse nil)))
 
-(defn spawn-mob
+(defn create-lambda-mob
   (^Entity [id loc]
    {:pre [(contains? @mobs id)
           (some? loc)]}
    (let [mob          (get @mobs id)
-         mob-type     (e/entity-type (:entity-type mob))
-         ^World world (w/get-world loc)]
+         mob-type     (e/entity-type (:entity-type mob))]
      (cond-> (w/as-sponge-location loc)
              true (.createEntity mob-type)
              true (mark-lambda-mob mob)
@@ -70,8 +69,17 @@
              (contains? mob :speed) (e/set-speed (eval (:speed mob)))
              (contains? mob :damage) (e/set-damage (eval (:damage mob)))
              (contains? mob :equipment) (e/set-equipment (:equipment mob))
-             true (e/spawn world)
+             (contains? mob :passenger) (e/set-passenger (create-lambda-mob (:passenger mob) loc))
              ))))
+
+(defn spawn-mob
+  (^Entity [id loc]
+   {:pre [(contains? @mobs id)
+          (some? loc)]}
+   (let [mob          (create-lambda-mob id loc)
+         ^World world (w/get-world loc)]
+     (e/spawn mob world))))
+
 
 (defn process-items-drop
   [event]

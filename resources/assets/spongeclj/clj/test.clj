@@ -43,6 +43,16 @@
   :action-fn sword-use)
 
 (def-mob
+  :id :king-chicken
+  :entity-type "minecraft:chicken"
+  :display-name (text :gold "Sanders' treasure")
+  :health 50
+  :speed 2
+  :drop [
+         `(cond (chance 1/50) (item-stack "minecraft:golden_apple" 1))
+         ])
+
+(def-mob
   :id :skeleton-king
   :entity-type "minecraft:skeleton"
   :display-name (text :red :bold "Skeleton king")
@@ -51,6 +61,7 @@
   :speed 0.2
   ;:armor            2
   ;todo: add passenger
+  :passenger :king-chicken
   :damage-modifiers {
                      :attack     2.5
                      :fire       -1

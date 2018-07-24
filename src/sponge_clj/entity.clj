@@ -67,6 +67,12 @@
       (.getType)
       (.getId)))
 
+(defn set-passenger
+  [^Entity tr ^Entity pass]
+  (-> tr
+      (.addPassenger pass))
+  tr)
+
 (defn set-equipment
   [^Entity entity, equipment]
   {:pre [(some? entity)
