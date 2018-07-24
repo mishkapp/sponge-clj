@@ -60,8 +60,7 @@
   :damage 4                                                 ;??
   :speed 0.2
   ;:armor            2
-  ;todo: add passenger
-  :passenger :king-chicken
+  :passenger `(cond (chance 1/10) :king-chicken)
   :damage-modifiers {
                      :attack     2.5
                      :fire       -1
@@ -78,6 +77,17 @@
               :main-hand (lambda-item-stack :skeleton-king-sword)
               :off-hand  (item-stack "minecraft:shield")
               }
+  )
+
+(def-mob
+  :id :stacker-skeleton
+  :entity-type "minecraft:skeleton"
+  :display-name (text :dark-green "stacker-skeleton")
+  :health 4
+  :passenger `(cond (chance 1/2) :stacker-skeleton)
+  :drop [
+         `(item-stack "minecraft:bone" (from-range 5 10))
+         ]
   )
 
 (register-spawn

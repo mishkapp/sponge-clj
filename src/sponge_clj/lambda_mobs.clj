@@ -54,6 +54,12 @@
       (.get (:lambda-mob-id @sponge-clj.keys/sponge-keys))
       (.orElse nil)))
 
+(defn apply-passenger
+  [^Entity entity passenger-id]
+  (if (not (nil? passenger-id))
+    (e/add-passenger entity passenger-id)
+    entity))
+
 (defn create-lambda-mob
   (^Entity [id loc]
    {:pre [(contains? @mobs id)
@@ -69,7 +75,7 @@
              (contains? mob :speed) (e/set-speed (eval (:speed mob)))
              (contains? mob :damage) (e/set-damage (eval (:damage mob)))
              (contains? mob :equipment) (e/set-equipment (:equipment mob))
-             (contains? mob :passenger) (e/set-passenger (create-lambda-mob (:passenger mob) loc))
+             (contains? mob :passenger) (apply-passenger (eval (:passenger mob)))
              ))))
 
 (defn spawn-mob

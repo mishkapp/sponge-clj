@@ -67,7 +67,7 @@
       (.getType)
       (.getId)))
 
-(defn set-passenger
+(defn add-passenger
   [^Entity tr ^Entity pass]
   (-> tr
       (.addPassenger pass))
