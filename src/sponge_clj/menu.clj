@@ -47,7 +47,7 @@
                                           (.iterator))))
         content (:content menu)
         _ (doseq [[k v] content] (let [x (- (first k) 1)
-                                       y (second k)
+                                       y (- (second k) 1)
                                        i (+ (* x 9) y)
                                        slot (nth @slots i)]
                                    (do
