@@ -80,8 +80,62 @@
   )
 
 (def-mob
-  :id :stacker-skeleton
+  :id :skeleton-king2
   :entity-type "minecraft:skeleton"
+  :display-name (text :red :bold "Skeleton king")
+  :health 4
+  :damage 4                                                 ;??
+  :speed 0.2
+  ;:armor            2
+  :passenger `(cond (chance 1/10) :king-chicken)
+  :damage-modifiers {
+                     :attack     2.5
+                     :fire       -1
+                     :projectile 0.1
+                     :magma      -1
+                     }
+  :drop [
+         `(item-stack "minecraft:diamond_block" (from-range 5 10))
+         `(cond (chance 1/3) (item-stack "minecraft:apple" 1))
+         (lambda-item-stack :skeleton-king-sword)
+         ]
+  :equipment {
+              :head      (item-stack "minecraft:iron_block")
+              :main-hand (lambda-item-stack :skeleton-king-sword)
+              :off-hand  (item-stack "minecraft:shield")
+              }
+  )
+
+(def-mob
+  :id :skeleton-king3
+  :entity-type "minecraft:skeleton"
+  :display-name (text :red :bold "Skeleton king")
+  :health 4
+  :damage 4                                                 ;??
+  :speed 0.2
+  ;:armor            2
+  :passenger `(cond (chance 1/10) :king-chicken)
+  :damage-modifiers {
+                     :attack     2.5
+                     :fire       -1
+                     :projectile 0.1
+                     :magma      -1
+                     }
+  :drop [
+         `(item-stack "minecraft:diamond_block" (from-range 5 10))
+         `(cond (chance 1/3) (item-stack "minecraft:apple" 1))
+         (lambda-item-stack :skeleton-king-sword)
+         ]
+  :equipment {
+              :head      (item-stack "minecraft:diamond_block")
+              :main-hand (lambda-item-stack :skeleton-king-sword)
+              :off-hand  (item-stack "minecraft:shield")
+              }
+  )
+
+(def-mob
+  :id :stacker-skeleton
+  :entity-type "minecraft:chicken"
   :display-name (text :dark-green "stacker-skeleton")
   :health 4
   :passenger `(cond (chance 1/2) :stacker-skeleton)
@@ -91,33 +145,32 @@
   )
 
 (register-spawn
-  :id :skeleton-king-overworld-spawner
-  :mob :skeleton-king
-  :worlds ["world"]
-  :biomes ["plains"]
-  :entity-types ["minecraft:zombie" "minecraft:skeleton"]
-  :chance 1/3
+  :id :stacker-skeleton-spawner
+  :mob :stacker-skeleton
+  ;:biomes ["plain"]
+  :entity-types ["minecraft:skeleton"]
+  :chance 1
   :priority 1
-  :blocks ["minecraft:grass"]
+  ;:blocks ["minecraft:grass"]
   ; Possible causes
   ; sponge:block_spawning sponge:breeding sponge:chunk_load sponge:custom
   ; sponge:dispense sponge:dropped_item sponge:experience sponge:falling_block
   ; sponge:mob_spawner sponge:passive sponge:placement sponge:plugin sponge:projectile
   ; sponge:spawn_egg sponge:structure sponge:tnt_ignite sponge:weather sponge:world_spawner
-  :causes ["sponge:world_spawner"]
+  :causes ["sponge:spawn_egg"]
   :type :replace
   ;raw predicate that handles destructured ConstructEntityEvent$Pre and decides can mob be spawned or not
   ;:raw-predicate predicate-fn
-  :skills [
-           {
-            :trigger :tick
-            :target-fn (fn [src]
-                         )
-            :skill-fn (fn [src targets args]
-                        )
-            :cooldown (ticks 20)
-            }
-           ]
+  ;:skills [
+  ;         {
+  ;          :trigger :tick
+  ;          :target-fn (fn [src]
+  ;                       )
+  ;          :skill-fn (fn [src targets args]
+  ;                      )
+  ;          :cooldown (ticks 20)
+  ;          }
+  ;         ]
   )
 
 (def cmd-a (cmd
@@ -149,11 +202,10 @@
 (def-trigger
   :id :my-block
   :event-type :walk
-  :predicate (fn [event]
-               (let [location-to (:location-to event)
-                     entity      (:entity event)]
+  :predicate #(let [location-to (:location-to %)
+                     entity      (:entity %)]
                  (and (player? entity)
-                      (block-location-equals? location-to (location "world" 35 65 310)))))
+                      (block-location-equals? location-to (location "world" 423 72 -63))))
   :action (fn [event]
             (let [^Entity entity (:entity event)
                   loc (location (.getLocation entity))
@@ -172,6 +224,7 @@
   :title (text :gold "Test menu")
   :rows 6
   :content {
+            [1 1] test-menu-entry
             [2 2] test-menu-entry
             [2 3] test-menu-entry
             [2 4] test-menu-entry

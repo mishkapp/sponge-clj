@@ -54,11 +54,17 @@
       (.get (:lambda-mob-id @sponge-clj.keys/sponge-keys))
       (.orElse nil)))
 
+(declare create-lambda-mob spawn-mob)
+
 (defn apply-passenger
-  [^Entity entity passenger-id]
-  (if (not (nil? passenger-id))
-    (e/add-passenger entity passenger-id)
-    entity))
+  [^Entity entity passenger]
+  (let [passenger-id (cond (seq? passenger) (eval passenger)
+                           (vector? passenger) (rand-nth passenger)
+                           (keyword? passenger) passenger)]
+    (if (not (nil? passenger-id))
+      (e/add-passenger entity (spawn-mob passenger-id (e/get-loc entity)))
+      entity)
+    ))
 
 (defn create-lambda-mob
   (^Entity [id loc]
@@ -75,16 +81,17 @@
              (contains? mob :speed) (e/set-speed (eval (:speed mob)))
              (contains? mob :damage) (e/set-damage (eval (:damage mob)))
              (contains? mob :equipment) (e/set-equipment (:equipment mob))
-             (contains? mob :passenger) (apply-passenger (eval (:passenger mob)))
+             (contains? mob :passenger) (apply-passenger (:passenger mob))
              ))))
 
 (defn spawn-mob
   (^Entity [id loc]
    {:pre [(contains? @mobs id)
           (some? loc)]}
-   (let [mob          (create-lambda-mob id loc)
+   (let [entity       (create-lambda-mob id loc)
          ^World world (w/get-world loc)]
-     (e/spawn mob world))))
+     (e/spawn entity world)
+     )))
 
 
 (defn process-items-drop
@@ -184,7 +191,7 @@
                                                  (.setCancelled (:event event) true)
                                                  (-> entity
                                                        (.remove))))
-            (sp/>>sponge #(spawn-mob (:mob res-spawn) location))
+          (sp/>>sponge #(spawn-mob (:mob res-spawn) location))
             )))))
 
 (defn- process-entities-for-spawn

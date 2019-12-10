@@ -33,6 +33,7 @@
       (.orElse nil)))
 
 (defn >sponge
+  "Asynchrounous executing now or after `delay` ticks"
   ([^IFn fn]
    (-> (Sponge/getScheduler)
        (.createTaskBuilder)
@@ -48,10 +49,26 @@
        (.submit (get-plugin')))))
 
 (defn >>sponge
-  [^IFn fn]
+  "Synchronous executing now (1 tick) or after `delay` ticks"
+  ([^IFn fn]
+   (-> (Sponge/getScheduler)
+       (.createTaskBuilder)
+       (.delayTicks 1)
+       (.execute fn)
+       (.submit (get-plugin'))))
+  ([^IFn fn delay]
+   (-> (Sponge/getScheduler)
+       (.createTaskBuilder)
+       (.delayTicks delay)
+       (.execute fn)
+       (.submit (get-plugin')))))
+
+(defn >><<sponge
+  [^IFn fn delay interval]
   (-> (Sponge/getScheduler)
       (.createTaskBuilder)
-      (.delayTicks 1)
+      (.delayTicks delay)
+      (.intervalTicks interval)
       (.execute fn)
       (.submit (get-plugin'))))
 

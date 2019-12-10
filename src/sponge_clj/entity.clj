@@ -53,7 +53,8 @@
 (defn spawn
   [^Entity entity ^World world]
   (-> world
-      (.spawnEntity entity)))
+      (.spawnEntity entity))
+  entity)
 
 (defn get-loc
   [^Entity entity]

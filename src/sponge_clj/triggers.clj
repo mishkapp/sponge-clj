@@ -98,6 +98,7 @@
     (prepare-type-vector event-type)
     (prepare-event-type (vector event-type))))
 
+;TODO: assertion for arities of predicate and action
 (defn def-trigger
   [& {:keys [id event-type predicate action delay]
       :or   {delay (seconds 1)
