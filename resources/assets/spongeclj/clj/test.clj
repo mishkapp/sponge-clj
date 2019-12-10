@@ -144,8 +144,28 @@
          ]
   )
 
+(def-mob
+  :id :skilled-skeleton
+  :entity-type "minecraft:skeleton"
+  :display-name (text :dark-purple :bold "SKILLED")
+  :health 10
+  :equipment {
+              :head (item-stack "minecraft:cyan_stained_glass")
+              }
+  :skills [
+           {
+            :trigger   :tick
+            :target-fn (fn [src]
+                         "")
+            :skill-fn  (fn [src targets args]
+                         "")
+            :cooldown  (ticks 100)
+            }
+           ]
+  )
+
 (register-spawn
-  :id :stacker-skeleton-spawner
+  :id :skilled-skeleton-spawner
   :mob :stacker-skeleton
   ;:biomes ["plain"]
   :entity-types ["minecraft:skeleton"]
@@ -161,18 +181,7 @@
   :type :replace
   ;raw predicate that handles destructured ConstructEntityEvent$Pre and decides can mob be spawned or not
   ;:raw-predicate predicate-fn
-  ;:skills [
-  ;         {
-  ;          :trigger :tick
-  ;          :target-fn (fn [src]
-  ;                       )
-  ;          :skill-fn (fn [src targets args]
-  ;                      )
-  ;          :cooldown (ticks 20)
-  ;          }
-  ;         ]
   )
-
 (def cmd-a (cmd
              :executor #(do (println %1)
                             (println (:id %2)))
@@ -203,9 +212,9 @@
   :id :my-block
   :event-type :walk
   :predicate #(let [location-to (:location-to %)
-                     entity      (:entity %)]
-                 (and (player? entity)
-                      (block-location-equals? location-to (location "world" 423 72 -63))))
+                    entity (:entity %)]
+                (and (player? entity)
+                     (block-location-equals? location-to (location "world" 423 72 -63))))
   :action (fn [event]
             (let [^Entity entity (:entity event)
                   loc (location (.getLocation entity))
@@ -221,15 +230,15 @@
     :action #(send-message % "Huuuuray!")))
 
 (def-menu main-menu
-  :title (text :gold "Test menu")
-  :rows 6
-  :content {
-            [1 1] test-menu-entry
-            [2 2] test-menu-entry
-            [2 3] test-menu-entry
-            [2 4] test-menu-entry
-            }
-  )
+          :title (text :gold "Test menu")
+          :rows 6
+          :content {
+                    [1 1] test-menu-entry
+                    [2 2] test-menu-entry
+                    [2 3] test-menu-entry
+                    [2 4] test-menu-entry
+                    }
+          )
 
 (def-cmd
   :aliases ["testmenu"]

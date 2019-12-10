@@ -1,6 +1,5 @@
 package sponge_clj;
 
-import clojure.lang.Keyword;
 import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
@@ -19,29 +18,25 @@ import org.spongepowered.api.data.value.mutable.Value;
 
 import java.util.Optional;
 
-public class LambdaMobData extends AbstractSingleData<Keyword, LambdaMobData, LambdaMobData.Immutable> {
-    public static Key<Value<Keyword>> KEY;
+public class LambdaMobData extends AbstractSingleData<String, LambdaMobData, LambdaMobData.Immutable> {
+    public static Key<Value<String>> KEY;
 
     public static void initKey() {
         KEY = Key.builder()
-                .type(new TypeToken<Value<Keyword>>(){})
+                .type(new TypeToken<Value<String>>(){})
                 .id("lambdamob.id")
                 .name("Lambda Mob Id")
                 .query(DataQuery.of('.', "lambdamob.id"))
                 .build();
     }
 
-    LambdaMobData(Keyword keyword) {
+    LambdaMobData(String keyword) {
         super(keyword, KEY);
     }
 
     @Override
-    protected Value<Keyword> getValueGetter() {
+    protected Value<String> getValueGetter() {
         return Sponge.getRegistry().getValueFactory().createValue(KEY, getValue());
-    }
-
-    public Value<Keyword> color() {
-        return getValueGetter();
     }
 
     @Override
@@ -75,8 +70,8 @@ public class LambdaMobData extends AbstractSingleData<Keyword, LambdaMobData, La
         return 1;
     }
 
-    public static class Immutable extends AbstractImmutableSingleData<Keyword, Immutable, LambdaMobData> {
-        Immutable(Keyword keyword) {
+    public static class Immutable extends AbstractImmutableSingleData<String, Immutable, LambdaMobData> {
+        Immutable(String keyword) {
             super(keyword, LambdaMobData.KEY);
         }
 
@@ -103,7 +98,7 @@ public class LambdaMobData extends AbstractSingleData<Keyword, LambdaMobData, La
 
         @Override
         public LambdaMobData create() {
-            return new LambdaMobData(Keyword.intern("sponge-clj", "null"));
+            return new LambdaMobData("null");
         }
 
         @Override

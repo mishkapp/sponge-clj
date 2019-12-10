@@ -37,10 +37,19 @@
         (.get ^Class LambdaMobData)
         (.isPresent))))
 
+(defn get-mob-id
+  [^Entity entity]
+  (if (nil? entity)
+    nil
+    (-> entity
+        (.get ^Class LambdaMobData)
+        (.get)
+        (keyword))))
+
 (defn mark-lambda-mob
   [^Entity entity mob]
   (.offer entity (.get (.getOrCreate entity LambdaMobData)))
-  (.offer entity (:lambda-mob-id @sponge-clj.keys/sponge-keys) (:id mob))
+  (.offer entity (:lambda-mob-id @sponge-clj.keys/sponge-keys) (name (:id mob)))
   entity)
 
 (defn unmark-lambda-mob
