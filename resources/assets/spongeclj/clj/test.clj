@@ -17,6 +17,8 @@
     [sponge-clj.text]
     [sponge-clj.menu]
     [sponge-clj.particles])
+  (:require [sponge-clj.entity :as e]
+            [sponge-clj.world :as w])
   (:import (org.spongepowered.api.entity Entity)))
 
 (defn sword-use
@@ -149,24 +151,36 @@
   :entity-type "minecraft:skeleton"
   :display-name (text :dark-purple :bold "SKILLED")
   :health 10
+  :damage-modifiers {
+                     :fire       -1
+                     }
   :equipment {
-              :head (item-stack "minecraft:cyan_stained_glass")
+              :head (item-stack "minecraft:beacon")
               }
-  :skills [
-           {
-            :trigger   :tick
-            :target-fn (fn [src]
-                         "")
-            :skill-fn  (fn [src targets args]
-                         "")
-            :cooldown  (ticks 100)
-            }
-           ]
+  :skills {
+           :test-skill {
+                        :trigger   :tick
+                        :target-fn (fn [src]
+                                     (e/get-nearest-entity (e/get-loc src) 10 player?))
+                        :skill-fn  (fn [src targets]
+                                     (let [tg (first targets)
+                                           location (-> tg
+                                                   (.getLocation))
+
+                                           lg (-> location
+                                                  (.createEntity (e/entity-type "minecraft:lightning")))]
+                                       (-> location
+                                           (.getExtent)
+                                           (.spawnEntity lg))))
+                        :cooldown  (ticks 100)
+                        }
+           }
+
   )
 
 (register-spawn
   :id :skilled-skeleton-spawner
-  :mob :stacker-skeleton
+  :mob :skilled-skeleton
   ;:biomes ["plain"]
   :entity-types ["minecraft:skeleton"]
   :chance 1

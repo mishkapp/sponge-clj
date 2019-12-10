@@ -14,6 +14,12 @@
   {:pre [(some? id)]}
   (get-catalog-type EntityType id))
 
+(defn get-entity-uuid
+  [^Entity entity]
+  (if (nil? entity)
+    nil
+    (.getUniqueId entity)))
+
 (defn set-display-name
   [^Entity entity, display-name]
   {:pre [(some? entity)
@@ -88,3 +94,11 @@
           (.setItemInHand ae-entity (HandTypes/OFF_HAND) (eval (:off-hand equipment)))
           ae-entity)
       entity)))
+
+(defn get-nearest-entity
+  [loc range predicate]
+  (let [world (w/get-world loc)
+        entities (-> world
+                 (.getNearbyEntities (w/loc->vec3d loc) range))]
+    (filter predicate entities)
+    ))

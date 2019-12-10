@@ -1,4 +1,6 @@
 (ns sponge-clj.lambda-mobs
+  (:use [sponge-clj.util]
+        )
   (:require [sponge-clj.entity :as e]
             [sponge-clj.world :as w]
             [sponge-clj.items :as i]
@@ -9,14 +11,16 @@
             [sponge-clj.sponge :as sp])
   (:import (org.spongepowered.api.world World)
            (org.spongepowered.api.entity Entity)
-           (org.spongepowered.api.event.entity DamageEntityEvent SpawnEntityEvent)
+           (org.spongepowered.api.event.entity DamageEntityEvent SpawnEntityEvent TargetEntityEvent)
            (org.spongepowered.api.event.item.inventory DropItemEvent$Destruct)
            (org.spongepowered.api.event.cause EventContextKeys)
            (sponge_clj LambdaMobData)))
 
-(def ^:private mobs (atom {}))
+(defonce ^:private mobs (atom {}))
 
-(def ^:private spawns (atom {}))
+(defonce ^:private spawns (atom {}))
+
+(defonce ^:private cooldowns (atom {}))
 
 (defn- register
   [id mob]
@@ -37,15 +41,6 @@
         (.get ^Class LambdaMobData)
         (.isPresent))))
 
-(defn get-mob-id
-  [^Entity entity]
-  (if (nil? entity)
-    nil
-    (-> entity
-        (.get ^Class LambdaMobData)
-        (.get)
-        (keyword))))
-
 (defn mark-lambda-mob
   [^Entity entity mob]
   (.offer entity (.get (.getOrCreate entity LambdaMobData)))
@@ -59,9 +54,15 @@
 
 (defn lambda-mob-type
   [^Entity entity]
-  (-> entity
-      (.get (:lambda-mob-id @sponge-clj.keys/sponge-keys))
-      (.orElse nil)))
+  (let [id (-> entity
+               (.get (:lambda-mob-id @sponge-clj.keys/sponge-keys))
+               (.orElse nil))
+        res (if (nil? id)
+              nil
+              (keyword id))]
+    res
+    )
+  )
 
 (declare create-lambda-mob spawn-mob)
 
@@ -236,6 +237,36 @@
                :raw-predicate raw-predicate}]
     (swap! spawns assoc id spawn)))
 
+(defn tick-skills
+  [^Entity entity]
+  (when-let* [mob-id (lambda-mob-type entity)
+              skills (:skills (get-mob mob-id))
+              skills (into {} (filter #(= (:trigger (second %)) :tick) skills))
+              ]
+    (let [uuid (e/get-entity-uuid entity)
+          cds (get @cooldowns uuid)
+          cds (if (nil? cds) {} cds)
+          now (System/currentTimeMillis)
+          skills (into {} (filter #(let [last-used (get cds (first %) 0)
+                                         cd (get (second %) :cooldown)]
+                                     (>= now (+ last-used cd)))
+                                  skills))
+          applied-skills (map (fn [[k v]]
+                                (let [targets (apply (:target-fn v) [entity])]
+                                  (if (empty? targets)
+                                    nil
+                                    (do
+                                      (apply (:skill-fn v) [entity targets])
+                                      k))
+                                  ))
+                              skills)
+          applied-skills (filter some? applied-skills)
+          new-cds (into {} (map #(vector % now) applied-skills))
+          cds (merge cds new-cds)
+          ]
+        (swap! cooldowns assoc uuid cds)
+      )))
+
 (t/def-trigger
   :id :lambda-mob-item-drop
   :event-type DropItemEvent$Destruct
@@ -260,10 +291,10 @@
   :delay 0
   )
 
-;(t/def-trigger
-;  :id :lambda-mob-ticker
-;  :event-type TargetEntityEvent
-;  :predicate #(isa? Skeleton (:entity %))
-;  :action #(println (:entity %))
-;  :delay 0)
+(t/def-trigger
+  :id :lambda-mob-ticker
+  :event-type TargetEntityEvent
+  :predicate #(lambda-mob? (:entity %))
+  :action #(tick-skills (:entity %))
+  :delay 0)
 ;todo: remove entity from registry when server despawn it (not death)
