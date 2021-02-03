@@ -5,7 +5,7 @@
 (def sandbox (binding [*ns* (create-ns 'sponge-clj.script.sandbox)]
                (do
                  (ns sponge-clj.script.sandbox
-                   (use
+                   (:use
                      [sponge-clj.cause]
                      [sponge-clj.commands]
                      [sponge-clj.database]
